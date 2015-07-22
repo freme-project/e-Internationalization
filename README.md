@@ -4,7 +4,6 @@ This converter performs raw document to NIF conversion through Okapi.
 
 ##Building
 ```
-cd okapi-nif-step
 mvn clean install
 ```
 
