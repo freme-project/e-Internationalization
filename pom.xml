@@ -18,6 +18,10 @@
 			</snapshots>
 			<url>file://${project.basedir}/lib</url>
 		</repository>
+		<repository>
+			<id>okapi-repo</id>
+			<url>http://repository-okapi.forge.cloudbees.com/release/</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
