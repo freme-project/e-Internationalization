@@ -9,7 +9,7 @@
 		<okapi.version>0.27</okapi.version>
 	</properties>
 	<repositories>
-		<repository>
+		<!-- repository>
 			<id>lib</id>
 			<name>lib</name>
 			<releases>
@@ -20,10 +20,14 @@
 				<enabled>false</enabled>
 			</snapshots>
 			<url>file://${project.basedir}/lib</url>
-		</repository>
+		</repository-->
 		<repository>
 			<id>okapi-repo</id>
 			<url>http://repository-okapi.forge.cloudbees.com/release/</url>
+		</repository>
+		<repository>
+			<id>raw-repo</id>
+			 <url>https://bitbucket.org/okapiframework/maven-repo/raw/master/</url>
 		</repository>
 	</repositories>
 	<dependencies>
@@ -193,7 +197,7 @@
 		<dependency>
 			<groupId>net.htmlparser.jericho</groupId>
 			<artifactId>jericho-html</artifactId>
-			<version>3.4</version>
+			<version>3.4-dev</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.woodstox</groupId>
