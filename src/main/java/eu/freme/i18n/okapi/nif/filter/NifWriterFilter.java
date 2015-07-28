@@ -1,4 +1,4 @@
-package com.vistatec.okapi.nif.filter;
+package eu.freme.i18n.okapi.nif.filter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -29,8 +29,9 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.vistatec.okapi.nif.filter.RDFConstants.RDFSerialization;
-import com.vistatec.okapi.nif.step.NifParameters;
+
+import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
+import eu.freme.i18n.okapi.nif.step.NifParameters;
 
 public class NifWriterFilter implements IFilterWriter {
 

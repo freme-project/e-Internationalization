@@ -1,4 +1,4 @@
-package com.vistatec.okapi.nif.step;
+package eu.freme.i18n.okapi.nif.step;
 
 import net.sf.okapi.common.ParametersDescription;
 import net.sf.okapi.common.StringParameters;

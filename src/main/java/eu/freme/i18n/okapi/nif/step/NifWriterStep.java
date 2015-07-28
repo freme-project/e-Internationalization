@@ -1,7 +1,6 @@
-package com.vistatec.okapi.nif.step;
+package eu.freme.i18n.okapi.nif.step;
 
-import com.vistatec.okapi.nif.filter.NifWriterFilter;
-
+import eu.freme.i18n.okapi.nif.filter.NifWriterFilter;
 import net.sf.okapi.common.Event;
 import net.sf.okapi.common.EventType;
 import net.sf.okapi.common.IParameters;
