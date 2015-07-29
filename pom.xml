@@ -40,7 +40,7 @@
 			<groupId>net.sf.okapi.lib</groupId>
 			<artifactId>okapi-lib-extra</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
+			<!-- scope>test</scope-->
 		</dependency>
 		<!-- >dependency> <groupId>net.sf.okapi.connectors</groupId> <artifactId>okapi-connector-pensieve</artifactId> 
 			<version>0.27</version> <scope>test</scope> </dependency -->
