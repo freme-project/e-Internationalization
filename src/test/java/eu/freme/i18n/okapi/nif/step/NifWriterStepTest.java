@@ -1,4 +1,4 @@
-package com.vistatec.okapi.nif.step;
+package eu.freme.i18n.okapi.nif.step;
 
 import java.io.File;
 import java.net.MalformedURLException;
@@ -14,7 +14,9 @@ import net.sf.okapi.steps.common.RawDocumentToFilterEventsStep;
 
 import org.junit.Test;
 
-import com.vistatec.okapi.nif.filter.RDFConstants.RDFSerialization;
+import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
+import eu.freme.i18n.okapi.nif.step.NifParameters;
+import eu.freme.i18n.okapi.nif.step.NifWriterStep;
 
 public class NifWriterStepTest {
 

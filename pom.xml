@@ -3,34 +3,40 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>eu.freme</groupId>
 	<artifactId>e-internationalization</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.1-SNAPSHOT</version>
 	<name>Okapi NIF converter</name>
 	<properties>
 		<okapi.version>0.27</okapi.version>
 	</properties>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.2.3.RELEASE</version>
+	</parent>
+
 	<repositories>
-		<!-- repository>
-			<id>lib</id>
-			<name>lib</name>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<url>file://${project.basedir}/lib</url>
-		</repository-->
+		<!-- repository> <id>lib</id> <name>lib</name> <releases> <enabled>true</enabled> 
+			<checksumPolicy>ignore</checksumPolicy> </releases> <snapshots> <enabled>false</enabled> 
+			</snapshots> <url>file://${project.basedir}/lib</url> </repository -->
 		<repository>
 			<id>okapi-repo</id>
 			<url>http://repository-okapi.forge.cloudbees.com/release/</url>
 		</repository>
 		<repository>
 			<id>raw-repo</id>
-			 <url>https://bitbucket.org/okapiframework/maven-repo/raw/master/</url>
+			<url>https://bitbucket.org/okapiframework/maven-repo/raw/master/</url>
 		</repository>
 	</repositories>
 	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi</groupId>
 			<artifactId>okapi-core</artifactId>
@@ -40,7 +46,6 @@
 			<groupId>net.sf.okapi.lib</groupId>
 			<artifactId>okapi-lib-extra</artifactId>
 			<version>${okapi.version}</version>
-			<!-- scope>test</scope-->
 		</dependency>
 		<!-- >dependency> <groupId>net.sf.okapi.connectors</groupId> <artifactId>okapi-connector-pensieve</artifactId> 
 			<version>0.27</version> <scope>test</scope> </dependency -->
@@ -70,7 +75,6 @@
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-properties</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -89,21 +93,18 @@
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-html</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-its</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-openoffice</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -115,67 +116,56 @@
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-rtf</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-dtd</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-ts</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-idml</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-json</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-php</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-ttx</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-railsyaml</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-xmlstream</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-plaintext</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-versifiedtxt</artifactId>
 			<version>${okapi.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.jena</groupId>
@@ -187,7 +177,6 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.okapi.steps</groupId>
@@ -219,6 +208,18 @@
 			<artifactId>snakeyaml</artifactId>
 			<version>1.15</version>
 		</dependency>
-
 	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.7</source>
+					<target>1.7</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

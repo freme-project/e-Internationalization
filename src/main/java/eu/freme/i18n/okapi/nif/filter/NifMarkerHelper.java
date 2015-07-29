@@ -1,4 +1,4 @@
-package com.vistatec.okapi.nif.filter;
+package eu.freme.i18n.okapi.nif.filter;
 
 
 import java.nio.charset.CharsetEncoder;
