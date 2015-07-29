@@ -8,8 +8,10 @@ public class NifParameters extends StringParameters {
 	public static final String OUTPUT_URI = "outputURI";
 
 	public static final String OUTPUT_BASE_PATH = "outBasePath";
-	
+
 	public static final String NIF_LANGUAGE = "nifLanguage";
+
+	public static final String NIF_URI_PREFIX = "nifUriPrefix";
 
 	@Override
 	public void reset() {
@@ -25,10 +27,10 @@ public class NifParameters extends StringParameters {
 				NIF_LANGUAGE,
 				"The format used for NIF serialization. Allowed values: RDF, TTL, JSON. The default is RDF.",
 				"NIF serialization format.");
-		desc.add(
-				OUTPUT_BASE_PATH,
-				"Directory of the NIF file.",
+		desc.add(OUTPUT_BASE_PATH, "Directory of the NIF file.",
 				"NIF file directory.");
+		desc.add(NIF_URI_PREFIX, "NIF URI prefix",
+				"URI prefix to be used for resources in the NIF file.");
 		return desc;
 	}
 
@@ -47,13 +49,20 @@ public class NifParameters extends StringParameters {
 	public void setNifLanguage(final String nifLanguage) {
 		setString(NIF_LANGUAGE, nifLanguage);
 	}
-	
-	public String getOutBasePath(){
+
+	public String getOutBasePath() {
 		return getString(OUTPUT_BASE_PATH);
 	}
-	
-	public void setOutBasePath(final String outputBasePath){
+
+	public void setOutBasePath(final String outputBasePath) {
 		setString(OUTPUT_BASE_PATH, outputBasePath);
 	}
+	
+	public String getNifURIPrefix(){
+		return getString(NIF_URI_PREFIX);
+	}
+	
+	public void setNifURIPrefix(final String nifUriPrefix){
+		setString(NIF_URI_PREFIX, nifUriPrefix);
+	}
 }
-
