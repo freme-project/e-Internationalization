@@ -18,10 +18,9 @@ import net.sf.okapi.lib.extra.pipelinebuilder.XParameter;
 import net.sf.okapi.lib.extra.pipelinebuilder.XPipeline;
 import net.sf.okapi.lib.extra.pipelinebuilder.XPipelineStep;
 import net.sf.okapi.steps.common.RawDocumentToFilterEventsStep;
-
-import com.vistatec.okapi.nif.filter.RDFConstants.RDFSerialization;
-import com.vistatec.okapi.nif.step.NifParameters;
-import com.vistatec.okapi.nif.step.NifWriterStep;
+import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
+import eu.freme.i18n.okapi.nif.step.NifParameters;
+import eu.freme.i18n.okapi.nif.step.NifWriterStep;
 
 public class NifConverter {
 
