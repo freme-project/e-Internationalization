@@ -21,7 +21,6 @@ import eu.freme.i18n.okapi.nif.step.NifWriterStep;
 public class NifWriterStepTest {
 
 	private static final LocaleId ENUS = new LocaleId("en", "us");
-	private static final LocaleId FRFR = new LocaleId("fr", "fr");
 	private static final LocaleId DEDE = new LocaleId("de", "de");
 	private static final LocaleId ITIT = new LocaleId("it", "it");
 

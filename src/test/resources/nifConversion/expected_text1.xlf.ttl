@@ -1,0 +1,29 @@
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix itsrdf: <http://www.w3.org/2005/11/its/rdf#> .
+@prefix nif:   <http://persistence.uni-leipzig.org/nlp2rdf/ontologies/nif-core#> .
+@prefix dc:    <http://purl.org/dc/elements/1.1/> .
+
+<http://freme-project.eu/#char=0,33>
+        a               nif:RFC5147String , nif:Context , nif:String ;
+        nif:beginIndex  "0"^^xsd:nonNegativeInteger ;
+        nif:endIndex    "33"^^xsd:nonNegativeInteger ;
+        nif:isString    "Hello World! What a beatiful day!"@en .
+
+<http://freme-project.eu/#char=13,33>
+        a                     nif:Phrase , nif:RFC5147String , nif:String ;
+        nif:ReferenceContext  "http://freme-project.eu/#char=0,33" ;
+        nif:anchorOf          "What a beatiful day!"@en ;
+        nif:beginIndex        "13"^^xsd:nonNegativeInteger ;
+        nif:endIndex          "33"^^xsd:nonNegativeInteger ;
+        dc:identifier         "2" ;
+        itsrdf:target         "Che bella giornata!"@it .
+
+<http://freme-project.eu/#char=0,12>
+        a                     nif:Phrase , nif:RFC5147String , nif:String ;
+        nif:ReferenceContext  "http://freme-project.eu/#char=0,33" ;
+        nif:anchorOf          "Hello World!"@en ;
+        nif:beginIndex        "0"^^xsd:nonNegativeInteger ;
+        nif:endIndex          "12"^^xsd:nonNegativeInteger ;
+        dc:identifier         "1" ;
+        itsrdf:target         "Ciao Mondo!"@it .
+

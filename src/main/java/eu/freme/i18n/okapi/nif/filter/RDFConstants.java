@@ -6,6 +6,7 @@ public class RDFConstants {
 	public static final String itsrdfPrefix = "http://www.w3.org/2005/11/its/rdf#";
 	public static final String xsdPrefix = "http://www.w3.org/2001/XMLSchema#";
 	public static final String typePrefix = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
+	public static final String dcPrefix = "http://purl.org/dc/elements/1.1/";
 	public enum RDFSerialization {
 		TURTLE("TTL"), JSON_LD("JSON-LD"), PLAINTEXT(null);
 		

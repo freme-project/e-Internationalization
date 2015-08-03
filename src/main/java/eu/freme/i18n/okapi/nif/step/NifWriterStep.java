@@ -1,49 +1,72 @@
 package eu.freme.i18n.okapi.nif.step;
 
-import eu.freme.i18n.okapi.nif.filter.NifWriterFilter;
 import net.sf.okapi.common.Event;
 import net.sf.okapi.common.EventType;
 import net.sf.okapi.common.IParameters;
-import net.sf.okapi.common.LocaleId;
 import net.sf.okapi.common.pipeline.BasePipelineStep;
-import net.sf.okapi.common.pipeline.annotations.StepParameterMapping;
-import net.sf.okapi.common.pipeline.annotations.StepParameterType;
 import net.sf.okapi.common.resource.ITextUnit;
 import net.sf.okapi.common.resource.StartDocument;
+import eu.freme.i18n.okapi.nif.filter.NifWriterFilter;
 
+/**
+ * This step can be used in the Okapi pipeline. It sends all events received
+ * from the pipeline to the NIF writer filter.
+ */
 public class NifWriterStep extends BasePipelineStep {
 
+	/** The parameters for this step. */
 	private NifParameters params;
 
+	/** The NIF filter writer object. */
 	private NifWriterFilter writer;
-//	private ICodec codec;
-	
-	private LocaleId trgLoc;
 
+	/**
+	 * Constructor.
+	 */
 	public NifWriterStep() {
 
 		params = new NifParameters();
-//		codec = OPCPackageReader.CODEC;
+		// codec = OPCPackageReader.CODEC;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sf.okapi.common.pipeline.IPipelineStep#getName()
+	 */
 	@Override
 	public String getName() {
 
 		return "NIF writer";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sf.okapi.common.pipeline.IPipelineStep#getDescription()
+	 */
 	@Override
 	public String getDescription() {
 		return "Generate NIF file. Expects: filter events. Sends back: filter events.";
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sf.okapi.common.pipeline.BasePipelineStep#getParameters()
+	 */
 	@Override
 	public IParameters getParameters() {
 		return params;
 	}
 
-	
-	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.sf.okapi.common.pipeline.BasePipelineStep#setParameters(net.sf.okapi
+	 * .common.IParameters)
+	 */
 	@Override
 	public void setParameters(IParameters params) {
 
@@ -59,6 +82,13 @@ public class NifWriterStep extends BasePipelineStep {
 
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * net.sf.okapi.common.pipeline.BasePipelineStep#handleEvent(net.sf.okapi
+	 * .common.Event)
+	 */
 	@Override
 	public Event handleEvent(Event event) {
 		switch (event.getEventType()) {
@@ -69,9 +99,9 @@ public class NifWriterStep extends BasePipelineStep {
 			break;
 
 		case TEXT_UNIT:
-			ITextUnit tu = event.getTextUnit();			
+			ITextUnit tu = event.getTextUnit();
 			Event ev = new Event(EventType.TEXT_UNIT, tu.clone());
-			processTextUnit(tu); 
+			processTextUnit(tu);
 			return ev;
 		case END_DOCUMENT:
 			processEndDocument();
@@ -101,13 +131,25 @@ public class NifWriterStep extends BasePipelineStep {
 		return event;
 	}
 
+	/**
+	 * Processes a single text unit.
+	 * 
+	 * @param textUnit
+	 *            the text unit.
+	 */
 	private void processTextUnit(ITextUnit textUnit) {
-		
+
+		// clone the text unit, so that it can be handled by following steps in
+		// the pipeline.
 		textUnit = textUnit.clone();
-//		CodecUtil.encodeTextUnit(textUnit, codec);
+		// CodecUtil.encodeTextUnit(textUnit, codec);
+		// make the writer process the text unit
 		writer.processTextUnit(textUnit);
 	}
 
+	/**
+	 * Processes the end of the document and reset the writer.
+	 */
 	private void processEndDocument() {
 		if (writer != null) {
 			writer.processEndDocument();
@@ -116,49 +158,16 @@ public class NifWriterStep extends BasePipelineStep {
 
 	}
 
+	/**
+	 * Creates the NIF writer filter object and then processes the start of the
+	 * document.
+	 * 
+	 * @param startDocument
+	 *            the start document object
+	 */
 	private void processStartDocument(StartDocument startDocument) {
-		writer = new NifWriterFilter(params, startDocument.getLocale(), trgLoc);
+		writer = new NifWriterFilter(params, startDocument.getLocale());
 		writer.processStartDocument(startDocument);
 	}
-	
-	@SuppressWarnings("deprecation")
-	@StepParameterMapping(parameterType = StepParameterType.TARGET_LOCALE)
-	public void setTargetLocale (LocaleId targetLocale) {
-		this.trgLoc = targetLocale;
-	}
-
-	// TODO check if isDone has to be overridden --> the original always returns
-	// true
-	// @Override
-	// public boolean isDone() {
-	// // TODO Auto-generated method stub
-	// return false;
-	// }
-
-	// TODO check if destroy has to be overridden --> the original does nothing
-	// @Override
-	// public void destroy() {
-	// // TODO Auto-generated method stub
-	//
-	// }
-
-	// TODO check if cancel has to be overridden --> the original does nothing
-	// @Override
-	// public void cancel() {
-	// // TODO Auto-generated method stub
-	//
-	// }
-
-	// @Override
-	// public boolean isLastOutputStep() {
-	// // TODO Auto-generated method stub
-	// return false;
-	// }
-	//
-	// @Override
-	// public void setLastOutputStep(boolean isLastStep) {
-	// // TODO Auto-generated method stub
-	//
-	// }
 
 }
