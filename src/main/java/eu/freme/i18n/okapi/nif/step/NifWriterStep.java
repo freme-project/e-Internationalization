@@ -34,7 +34,7 @@ public class NifWriterStep extends BasePipelineStep {
 
 	/** The NIF filter writer object. */
 	private NifWriterFilter writer;
-
+	
 	/**
 	 * Constructor.
 	 */
@@ -106,7 +106,9 @@ public class NifWriterStep extends BasePipelineStep {
 	 */
 	@Override
 	public Event handleEvent(Event event) {
+//		System.out.println(event.getResource().getSkeleton().toString());
 		switch (event.getEventType()) {
+		
 		case NO_OP:
 			return event;
 		case START_DOCUMENT:
@@ -123,11 +125,11 @@ public class NifWriterStep extends BasePipelineStep {
 			break;
 		case END_GROUP:
 		case END_SUBFILTER:
-			break;
-
-		case CANCELED:
-		case CUSTOM:
 		case DOCUMENT_PART:
+		case START_SUBDOCUMENT:
+		case END_SUBDOCUMENT:
+		case CUSTOM:
+		case CANCELED:
 		case START_BATCH:
 		case END_BATCH:
 		case MULTI_EVENT:
@@ -135,8 +137,6 @@ public class NifWriterStep extends BasePipelineStep {
 		case RAW_DOCUMENT:
 		case START_BATCH_ITEM:
 		case END_BATCH_ITEM:
-		case START_SUBDOCUMENT:
-		case END_SUBDOCUMENT:
 		case START_GROUP:
 		case START_SUBFILTER:
 			break;
@@ -184,5 +184,6 @@ public class NifWriterStep extends BasePipelineStep {
 		writer = new NifWriterFilter(params, startDocument.getLocale());
 		writer.processStartDocument(startDocument);
 	}
+	
 
 }

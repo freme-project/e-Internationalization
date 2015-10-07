@@ -15,78 +15,45 @@
  */
 package eu.freme.i18n.okapi.nif.filter;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.sf.okapi.common.Event;
-import net.sf.okapi.common.IParameters;
 import net.sf.okapi.common.LocaleId;
-import net.sf.okapi.common.Util;
-import net.sf.okapi.common.encoder.EncoderManager;
-import net.sf.okapi.common.exceptions.OkapiIOException;
-import net.sf.okapi.common.filterwriter.IFilterWriter;
+import net.sf.okapi.common.annotation.GenericAnnotation;
+import net.sf.okapi.common.annotation.GenericAnnotations;
+import net.sf.okapi.common.annotation.IAnnotation;
 import net.sf.okapi.common.resource.ITextUnit;
 import net.sf.okapi.common.resource.StartDocument;
 import net.sf.okapi.common.resource.TextContainer;
 import net.sf.okapi.common.resource.TextPart;
-import net.sf.okapi.common.skeleton.ISkeletonWriter;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Literal;
-import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 
-import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
+import eu.freme.i18n.okapi.nif.its.ITSAnnotAttribute;
+import eu.freme.i18n.okapi.nif.its.ITSAnnotation;
+import eu.freme.i18n.okapi.nif.its.ITSAnnotationsHelper;
 import eu.freme.i18n.okapi.nif.step.NifParameters;
 
 /**
- * Writer filter class for NIF documents. It handles filter events from Okapi
- * pipeline and creates a NIF file.
+ * Writer filter class for NIF documents.
  */
-public class NifWriterFilter implements IFilterWriter {
-
-	/**
-	 * the default URI prefix for NIF resources. It is only used if a custom URI
-	 * is not specified.
-	 */
-	private final static String DEF_URI_PREFIX = "http://example.org/";
-
-	/** The string preceding the offset in the URI string. */
-	private final static String URI_CHAR_OFFSET = "#char=";
-
-	/** The original document name. */
-	private String originalDocName;
-
-	/** The parameters set for this file. */
-	private NifParameters params;
-
-	/** The path where the output file is saved. */
-	private String fwOutputPath;
-
-	/** The output stream. */
-	private OutputStream fwOutputStream;
-
-	/** The Jena model used for managing the NIF file. */
-	private Model model;
+public class NifWriterFilter extends AbstractNifWriterFilter {
 
 	/** The object used for the context string building. */
 	private StringBuilder referenceContextText;
-
-	/** The source locale. */
-	private LocaleId sourceLocale;
-
-	/** The URI prefix for NIF resources. */
-	private String uriPrefix;
 
 	/**
 	 * Line break used for separating different text units when building the
@@ -96,6 +63,9 @@ public class NifWriterFilter implements IFilterWriter {
 
 	/** Helper class for marker management. */
 	private NifMarkerHelper markerHelper;
+
+	/** map matching a locale to the appropriate target reference context. */
+	private Map<String, StringBuilder> locale2TargetRefCtxMap;
 
 	/**
 	 * Constructor.
@@ -107,9 +77,8 @@ public class NifWriterFilter implements IFilterWriter {
 	 */
 	public NifWriterFilter(NifParameters params, LocaleId sourceLocale) {
 
-		this.params = params;
-		this.sourceLocale = sourceLocale;
-		markerHelper = new NifMarkerHelper();
+		super(params, sourceLocale);
+		markerHelper = new NifMarkerHelper(this);
 	}
 
 	/**
@@ -117,55 +86,8 @@ public class NifWriterFilter implements IFilterWriter {
 	 */
 	public NifWriterFilter() {
 
-		params = new NifParameters();
-		markerHelper = new NifMarkerHelper();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.sf.okapi.common.filterwriter.IFilterWriter#getName()
-	 */
-	@Override
-	public String getName() {
-		return getClass().getName();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.sf.okapi.common.filterwriter.IFilterWriter#setOptions(net.sf.okapi
-	 * .common.LocaleId, java.lang.String)
-	 */
-	@Override
-	public void setOptions(LocaleId locale, String defaultEncoding) {
-		// do nothing
-
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.sf.okapi.common.filterwriter.IFilterWriter#setOutput(java.lang.String
-	 * )
-	 */
-	@Override
-	public void setOutput(String path) {
-		this.fwOutputPath = path;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.sf.okapi.common.filterwriter.IFilterWriter#setOutput(java.io.OutputStream
-	 * )
-	 */
-	@Override
-	public void setOutput(OutputStream output) {
-		this.fwOutputStream = output;
+		super(new NifParameters(), null);
+		markerHelper = new NifMarkerHelper(this);
 	}
 
 	/*
@@ -216,13 +138,16 @@ public class NifWriterFilter implements IFilterWriter {
 		}
 		// init the start index for this text unit
 		int startIndex = referenceContextText.length();
-		String sourceText = getText(textUnit.getSource());
+		String sourceText = getText(textUnit.getSource(), sourceLocale, false);
 		// append the source text of this text unit to the reference context
 		// text
 		referenceContextText.append(sourceText);
 		// create a resource for this text unit in the NIF model
 		Resource textUnitResource = createTextUnitResource(sourceText,
-				startIndex, startIndex + sourceText.length(), textUnit.getId());
+				sourceLocale, startIndex, startIndex + sourceText.length(),
+				textUnit.getId(), false);
+
+		manageItsAnnotations(textUnitResource, textUnit, textUnit.getSource());
 
 		// if target locales exist and related target texts exist as well,
 		// create a target property for the current NIF resource
@@ -230,10 +155,54 @@ public class NifWriterFilter implements IFilterWriter {
 		if (targetLocales != null) {
 			for (LocaleId targetLocale : targetLocales) {
 
-				addTranslation(textUnitResource,
-						getText(textUnit.getTarget(targetLocale)), targetLocale);
+				// //
+				if (!locale2TargetRefCtxMap.containsKey(targetLocale
+						.getLanguage())) {
+					locale2TargetRefCtxMap.put(targetLocale.getLanguage(),
+							new StringBuilder());
+				} else {
+					locale2TargetRefCtxMap.get(targetLocale.getLanguage())
+							.append(lineBreak);
+				}
+				int startTrgtIdx = locale2TargetRefCtxMap.get(
+						targetLocale.getLanguage()).length();
+				String targetText = getText(textUnit.getTarget(targetLocale),
+						targetLocale, true);
+				locale2TargetRefCtxMap.get(targetLocale.getLanguage()).append(
+						targetText);
+				Resource targetRes = createTextUnitResource(targetText,
+						targetLocale, startTrgtIdx,
+						startTrgtIdx + targetText.length(), textUnit.getId(),
+						true);
+				// //
+
+				addTranslation(textUnitResource, targetRes);
+				manageItsAnnotations(textUnitResource, textUnit,
+						textUnit.getTarget(targetLocale));
 			}
 		}
+	}
+
+	/**
+	 * Gets the text from an Okapi TextContainer object.
+	 * 
+	 * @param tc
+	 *            the Okapi TextContainer
+	 * @return the text from the Okapi TextContainer
+	 */
+	private String getText(final TextContainer tc, LocaleId locale,
+			final boolean isTarget) {
+
+		StringBuilder sb = new StringBuilder();
+		markerHelper.clear();
+		for (TextPart part : tc.getParts()) {
+			sb.append(markerHelper.toString(part.getContent(), locale, isTarget));
+		}
+		String text = sb.toString();
+		if (!Normalizer.isNormalized(text, Normalizer.Form.NFC)) {
+			text = Normalizer.normalize(text, Normalizer.Form.NFC);
+		}
+		return text;
 	}
 
 	/**
@@ -241,42 +210,47 @@ public class NifWriterFilter implements IFilterWriter {
 	 * 
 	 * @param resource
 	 *            the NIF resource
-	 * @param targetText
-	 *            the target text
-	 * @param targetLocale
-	 *            the target locale.
+	 * @param target
+	 *            the NIF target resource
 	 */
-	private void addTranslation(Resource resource, String targetText,
-			LocaleId targetLocale) {
+	private void addTranslation(Resource resource, Resource target) {
 
+		// Property targetProp = model.createProperty(RDFConstants.itsrdfPrefix,
+		// "target");
+		// if (targetLocale != null) {
+		// resource.addProperty(targetProp, targetText,
+		// targetLocale.getLanguage());
+		// } else {
+		// resource.addProperty(targetProp, targetText);
+		// }
 		Property targetProp = model.createProperty(RDFConstants.itsrdfPrefix,
 				"target");
-		if (targetLocale != null) {
-			resource.addProperty(targetProp, targetText,
-					targetLocale.getLanguage());
-		} else {
-			resource.addProperty(targetProp, targetText);
-		}
+		resource.addProperty(targetProp, target);
 	}
 
 	/**
 	 * Creates a NIF resource for a specific text unit.
 	 * 
-	 * @param source
-	 *            the text unit text
+	 * @param text
+	 *            the text
+	 * @param locale
+	 *            the locale
 	 * @param startIdx
 	 *            the start index
 	 * @param endIdx
 	 *            the end index
 	 * @param unitId
 	 *            the text unit ID
+	 * @param isTarget
+	 *            a boolean stating if this text is from a target.
 	 * @return the created resource.
 	 */
-	private Resource createTextUnitResource(String source, int startIdx,
-			int endIdx, String unitId) {
+	private Resource createTextUnitResource(String text, LocaleId locale,
+			int startIdx, int endIdx, String unitId, boolean isTarget) {
 
 		// creates the NIF resource
-		Resource resource = model.createResource(getURI(startIdx, endIdx));
+		Resource resource = model.createResource(getURI(startIdx, endIdx,
+				locale, isTarget));
 
 		// adds following NIF types: String and RFC5147String
 		Property type = model.createProperty(RDFConstants.typePrefix);
@@ -289,9 +263,9 @@ public class NifWriterFilter implements IFilterWriter {
 		Property anchorOf = model.createProperty(RDFConstants.nifPrefix,
 				"anchorOf");
 		if (sourceLocale != null) {
-			resource.addProperty(anchorOf, source, sourceLocale.getLanguage());
+			resource.addProperty(anchorOf, text, sourceLocale.getLanguage());
 		} else {
-			resource.addProperty(anchorOf, source);
+			resource.addProperty(anchorOf, text);
 		}
 
 		// adds start and end index properties
@@ -306,11 +280,12 @@ public class NifWriterFilter implements IFilterWriter {
 				model.createProperty(RDFConstants.nifPrefix + "endIndex"),
 				endIndex);
 
-		// Adds the text unit ID by using the identifier property
-		Property identifier = model.createProperty(RDFConstants.dcPrefix
-				+ "identifier");
-		resource.addProperty(identifier, model.createLiteral(unitId));
-
+		if (unitId != null) {
+			// Adds the text unit ID by using the identifier property
+			Property identifier = model.createProperty(RDFConstants.dcPrefix
+					+ "identifier");
+			resource.addProperty(identifier, model.createLiteral(unitId));
+		}
 		return resource;
 	}
 
@@ -321,28 +296,22 @@ public class NifWriterFilter implements IFilterWriter {
 	 *            the start index
 	 * @param endIdx
 	 *            the end index
+	 * @param locale
+	 *            the locale
+	 * @param isTarget
+	 *            a boolean stating if the URI is for a target text
 	 * @return the URI string
 	 */
-	private String getURI(int startIdx, int endIdx) {
+	private String getURI(int startIdx, int endIdx, LocaleId locale,
+			boolean isTarget) {
 
-		return uriPrefix + (originalDocName != null ? originalDocName : "")
-				+ URI_CHAR_OFFSET + startIdx + "," + endIdx;
-	}
-
-	/**
-	 * Gets the text from an Okapi TextContainer object.
-	 * 
-	 * @param tc
-	 *            the Okapi TextContainer
-	 * @return the text from the Okapi TextContainer
-	 */
-	private String getText(final TextContainer tc) {
-
-		StringBuilder sb = new StringBuilder();
-		for (TextPart part : tc.getParts()) {
-			sb.append(markerHelper.toString(part.getContent()));
+		String uriTargetLoc = "";
+		if (isTarget) {
+			uriTargetLoc = "target-" + locale.getLanguage();
 		}
-		return sb.toString();
+		return uriPrefix
+				+ (originalDocName != null ? originalDocName + "/" : "")
+				+ uriTargetLoc + URI_CHAR_OFFSET + startIdx + "," + endIdx;
 	}
 
 	/**
@@ -351,13 +320,18 @@ public class NifWriterFilter implements IFilterWriter {
 	 * 
 	 * @param text
 	 *            the text for the context reference resource.
+	 * @param locale
+	 *            the locale
+	 * @param isTarget
+	 *            a boolean stating if the text if from a target
 	 * @return the context reference resource.
 	 */
-	private Resource createContextResource(final String text) {
+	private Resource createContextResource(final String text, LocaleId locale,
+			boolean isTarget) {
 
 		// The URI offset for the context reference resource is 0-total text
 		// length.
-		String contextURI = getURI(0, text.length());
+		String contextURI = getURI(0, text.length(), locale, isTarget);
 		// Adds the context reference property to all existing text unit
 		// resources in the model
 		addContextReference(contextURI);
@@ -442,8 +416,18 @@ public class NifWriterFilter implements IFilterWriter {
 	 */
 	public void processEndDocument() {
 
-		createContextResource(referenceContextText.toString());
+		createContextResource(referenceContextText.toString(), sourceLocale,
+				false);
+		if (!locale2TargetRefCtxMap.isEmpty()) {
+			for (Entry<String, StringBuilder> entry : locale2TargetRefCtxMap
+					.entrySet()) {
+				createContextResource(entry.getValue().toString(),
+						new LocaleId(entry.getKey()), true);
+			}
+		}
 		close();
+		referenceContextText = null;
+		locale2TargetRefCtxMap = null;
 	}
 
 	/**
@@ -486,135 +470,205 @@ public class NifWriterFilter implements IFilterWriter {
 		model.setNsPrefix("itsrdf", RDFConstants.itsrdfPrefix);
 		model.setNsPrefix("dc", RDFConstants.dcPrefix);
 		referenceContextText = new StringBuilder();
+		locale2TargetRefCtxMap = new HashMap<String, StringBuilder>();
 	}
 
 	/**
-	 * Gets the appropriate output file extension based on the RDF serialization format
-	 * chosen for the NIF file.
+	 * Manages the ITS annotations for a specific text unit.
 	 * 
-	 * @return the file extension
+	 * @param resource
+	 *            the NIF resource
+	 * @param tu
+	 *            the text unit
+	 * @param container
+	 *            the text container
 	 */
-	private String getOutFileExtension() {
-		String nifLanguage = params.getNifLanguage();
-		String ext = ".rdf";
-		if (nifLanguage != null) {
-			if (nifLanguage.equals(RDFSerialization.TURTLE.toRDFLang())) {
-				ext = ".ttl";
-			} else if (nifLanguage.equals(RDFSerialization.JSON_LD.toRDFLang())) {
-				ext = ".json";
-			}
-		}
-		return ext;
+	private void manageItsAnnotations(Resource resource, ITextUnit tu,
+			TextContainer container) {
+
+		List<ITSAnnotation> itsAnnotations = new ArrayList<ITSAnnotation>();
+		itsAnnotations.addAll(retrieveItsAnnotations(tu.getAnnotations()));
+		itsAnnotations
+				.addAll(retrieveItsAnnotations(container.getAnnotations()));
+		// for (TextPart part : container.getParts()) {
+		// if (part.getContent().getCodes() != null) {
+		// for (Code code : part.getContent().getCodes()) {
+		// itsAnnotations.addAll(retrieveItsAnnotations(code
+		// .getGenericAnnotations()));
+		// }
+		// }
+		// }
+		addItsAnnotations(resource, itsAnnotations);
 	}
 
 	/**
-	 * Closes the document by saving the NIF file.
+	 * Retrieves the ITS annotations from a list of generic annotations.
 	 * 
-	 * @see net.sf.okapi.common.filterwriter.IFilterWriter#close()
+	 * @param annotations
+	 *            the list of generic annotations
+	 * @return the list of ITS annotations.
 	 */
-	@Override
-	public void close() {
-
-		OutputStream outputStream = null;
-		try {
-
-			String outputPath = params.getOutputURI();
-			if (outputPath == null || outputPath.isEmpty()) {
-				String outDirPath = params.getOutBasePath();
-				if (outDirPath == null || outDirPath.isEmpty()) {
-					if (fwOutputPath != null) {
-						outputPath = fwOutputPath;
-					}
-				} else {
-					outputPath = new File(outDirPath, originalDocName
-							+ getOutFileExtension()).toURI().toString();
-				}
+	private List<ITSAnnotation> retrieveItsAnnotations(
+			GenericAnnotations annotations) {
+		List<ITSAnnotation> itsAnnotations = new ArrayList<ITSAnnotation>();
+		if (annotations != null) {
+			Iterator<GenericAnnotation> annsIt = annotations.iterator();
+			while (annsIt.hasNext()) {
+				GenericAnnotation annot = annsIt.next();
+				itsAnnotations
+						.add(ITSAnnotationsHelper.getITSAnnotation(annot));
 			}
-
-			if (outputPath != null) {
-				Util.createDirectories(outputPath);
-				File file = new File(new URI(outputPath));
-				if (file.exists()) {
-					file.delete();
-				}
-				System.out.println(outputPath);
-				file.createNewFile();
-				outputStream = new FileOutputStream(file);
-
-			} else {
-				outputStream = fwOutputStream;
-			}
-
-			if (outputStream != null) {
-				final String nifLang = params.getNifLanguage();
-				OutputStreamWriter writer = new OutputStreamWriter(
-						outputStream, Charset.forName("UTF-8").newEncoder());
-				if (nifLang != null && !nifLang.isEmpty()) {
-					System.out.println(nifLang);
-					model.write(writer, nifLang);
-				} else {
-					model.write(writer);
-				}
-			}
-
-		} catch (IOException e) {
-			throw new OkapiIOException("Error while saving the NIF file.", e);
-		} catch (URISyntaxException e) {
-			throw new OkapiIOException("invalid output file URI sintax.", e);
 		}
+		return itsAnnotations;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see net.sf.okapi.common.filterwriter.IFilterWriter#getParameters()
+	/**
+	 * Retrieves the ITS annotations from a list of annotations.
+	 * 
+	 * @param annotations
+	 *            the list of annotations
+	 * @return the list ITS annotations.
 	 */
-	@Override
-	public IParameters getParameters() {
-		return params;
-	}
+	private List<ITSAnnotation> retrieveItsAnnotations(
+			Iterable<IAnnotation> annotations) {
 
-	/*
-	 * (non-Javadoc)
-	 * @see net.sf.okapi.common.filterwriter.IFilterWriter#setParameters(net.sf.okapi.common.IParameters)
-	 */
-	@Override
-	public void setParameters(IParameters params) {
-		if (!(params instanceof NifParameters)) {
-			throw new IllegalArgumentException("Received params of type "
-					+ params.getClass().getName()
-					+ ". Only NifParameters accepted.");
+		List<ITSAnnotation> itsAnnotations = new ArrayList<ITSAnnotation>();
+		Iterator<IAnnotation> annIterator = annotations.iterator();
+		while (annIterator.hasNext()) {
+			IAnnotation annot = annIterator.next();
+			if (annot instanceof GenericAnnotations) {
+				for (GenericAnnotation genAnn : ((GenericAnnotations) annot)
+						.getAllAnnotations()) {
+					itsAnnotations.add(ITSAnnotationsHelper
+							.getITSAnnotation((GenericAnnotation) genAnn));
+				}
+			}
 		}
-		this.params = (NifParameters) params;
+		return itsAnnotations;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see net.sf.okapi.common.filterwriter.IFilterWriter#cancel()
+	/**
+	 * Adds a list of ITS annotations to a specific NIF resource.
+	 * 
+	 * @param resource
+	 *            the NIF resource
+	 * @param itsAnnotations
+	 *            the list of ITS annotations.
 	 */
-	@Override
-	public void cancel() {
-		// do nothing
+	private void addItsAnnotations(Resource resource,
+			List<ITSAnnotation> itsAnnotations) {
+
+		// List<ITSAnnotation> itsAnnotations = new ArrayList<ITSAnnotation>();
+		// Annotations annotations = textContainer.getAnnotations();
+		// Iterator<IAnnotation> annIterator = annotations.iterator();
+		// while (annIterator.hasNext()) {
+		// IAnnotation annot = annIterator.next();
+		// if (annot instanceof GenericAnnotations) {
+		// for (GenericAnnotation genAnn : ((GenericAnnotations) annot)
+		// .getAllAnnotations()) {
+		// itsAnnotations.add(ITSAnnotationsHelper
+		// .getITSAnnotation((GenericAnnotation) genAnn));
+		// }
+		// }
+		// }
+		Property itsProp = null;
+		for (ITSAnnotation ann : itsAnnotations) {
+
+			for (ITSAnnotAttribute attr : ann.getAttributes()) {
+				itsProp = model.createProperty(RDFConstants.itsrdfPrefix
+						+ attr.getName());
+				RDFNode node = createItsRdfNode(attr);
+				resource.addProperty(itsProp, node);
+			}
+		}
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see net.sf.okapi.common.filterwriter.IFilterWriter#getEncoderManager()
+	// private void addItsAnnotations(Resource textUnitResource, String tuId) {
+	//
+	// if (textUnit2ItsAnnots.containsKey(tuId)
+	// && !textUnit2ItsAnnots.get(tuId).isEmpty()) {
+	// Property itsProp = null;
+	// for (ITSAnnotation ann : textUnit2ItsAnnots.get(tuId)) {
+	//
+	// for (ITSAnnotAttribute attr : ann.getAttributes()) {
+	// itsProp = model.createProperty(RDFConstants.itsrdfPrefix
+	// + attr.getName());
+	// RDFNode node = createItsRdfNode(attr);
+	// textUnitResource.addProperty(itsProp, node);
+	// }
+	// }
+	// }
+	// }
+
+	/**
+	 * Creates the appropriate its-rdf node for the specific ITS annotation
+	 * attribute
+	 * 
+	 * @param attribute
+	 *            the attribute
+	 * @return the its-rdf node.
 	 */
-	@Override
-	public EncoderManager getEncoderManager() {
-		// do nothing
-		return null;
+	private RDFNode createItsRdfNode(ITSAnnotAttribute attribute) {
+
+		RDFNode rdfNode = null;
+		switch (attribute.getType()) {
+		case ITSAnnotAttribute.BOOLEAN_TYPE:
+			rdfNode = model.createLiteral(attribute.getValue().toString()
+					.toLowerCase());
+			break;
+		case ITSAnnotAttribute.DOUBLE_TYPE:
+			rdfNode = model.createTypedLiteral(attribute.getValue(),
+					XSDDatatype.XSDdouble);
+			break;
+		case ITSAnnotAttribute.INTEGER_TYPE:
+			rdfNode = model.createTypedLiteral(attribute.getValue(),
+					XSDDatatype.XSDinteger);
+			break;
+		case ITSAnnotAttribute.STRING_TYPE:
+			rdfNode = model.createLiteral(attribute.getValue().toString());
+			break;
+		case ITSAnnotAttribute.UNISGNED_INTEGER_TYPE:
+			rdfNode = model.createTypedLiteral(attribute.getValue(),
+					XSDDatatype.XSDunsignedInt);
+			break;
+		case ITSAnnotAttribute.IRI_STRING_TYPE:
+			rdfNode = model.createResource(attribute.getValue().toString());
+			break;
+		default:
+			break;
+		}
+		return rdfNode;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see net.sf.okapi.common.filterwriter.IFilterWriter#getSkeletonWriter()
+	/**
+	 * Creates a NIF resource containing in line annotations.
+	 * 
+	 * @param annotatedText
+	 *            the annotated text
+	 * @param startIdx
+	 *            the start index
+	 * @param locale
+	 *            the locale
+	 * @param isTarget
+	 *            a boolean stating if the text is from a target
+	 * @param annotations
+	 *            the list of annotations
 	 */
-	@Override
-	public ISkeletonWriter getSkeletonWriter() {
-		// do nothing
-		return null;
-	}
+	public void createResourceForInlineAnnotation(String annotatedText,
+			int startIdx, LocaleId locale, boolean isTarget,
+			GenericAnnotations annotations) {
+		int actualStartIdx = 0;
+		if (isTarget && locale2TargetRefCtxMap.get(locale) != null) {
+			actualStartIdx = startIdx
+					+ locale2TargetRefCtxMap.get(locale).length();
+		} else {
+			actualStartIdx = startIdx + referenceContextText.length();
+		}
+		Resource resource = createTextUnitResource(annotatedText, locale,
+				actualStartIdx, actualStartIdx + annotatedText.length(), null,
+				isTarget);
+		addItsAnnotations(resource, retrieveItsAnnotations(annotations));
 
+	}
 }

@@ -83,6 +83,11 @@
 			<artifactId>okapi-lib-extra</artifactId>
 			<version>${okapi.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.lib</groupId>
+			<artifactId>okapi-lib-preprocessing</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
 		<!-- >dependency> <groupId>net.sf.okapi.connectors</groupId> <artifactId>okapi-connector-pensieve</artifactId> 
 			<version>0.27</version> <scope>test</scope> </dependency -->
 		<dependency>
@@ -201,6 +206,56 @@
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-versifiedtxt</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-mosestext</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-mif</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-archive</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-transifex</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-xini</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-txml</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-wiki</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-doxygen</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-rainbowkit</artifactId>
+			<version>${okapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.okapi.filters</groupId>
+			<artifactId>okapi-filter-transtable</artifactId>
 			<version>${okapi.version}</version>
 		</dependency>
 		<dependency>

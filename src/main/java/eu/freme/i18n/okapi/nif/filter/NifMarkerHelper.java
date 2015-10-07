@@ -16,15 +16,16 @@
 package eu.freme.i18n.okapi.nif.filter;
 
 import java.nio.charset.CharsetEncoder;
+import java.text.Normalizer;
 import java.util.List;
 
+import net.sf.okapi.common.LocaleId;
+import net.sf.okapi.common.annotation.GenericAnnotation;
 import net.sf.okapi.common.resource.Code;
 import net.sf.okapi.common.resource.TextFragment;
 
-//import net.sf.okapi.steps.xliffkit.codec.DummyEncoder;
-
 /**
- * Helper class for markers management.
+ * Helper class for markers management in NIF Writer filter.
  */
 public class NifMarkerHelper {
 
@@ -37,23 +38,40 @@ public class NifMarkerHelper {
 	/** The charset encoder. */
 	private CharsetEncoder chsEnc;
 
+	/** States if an opened marker has been found. */
+	private boolean markerOpened;
+
+	/** Total length of parts analyzed so far. */
+	private int totPartsLength;
+
+	/** The current code. */
+	private Code currentCode;
+
+	/** The String containing the annotated text. */
+	private StringBuilder annotatedText;
+
+	/** The writer filter. */
+	private NifWriterFilter writerFilter;
+
+	/** The annotated text start index. */
+	private int annotatedTextStartIdx;
+
 	/**
 	 * Constructor.
+	 * 
+	 * @param writerFilter
+	 *            the writer filter.
 	 */
-	public NifMarkerHelper() {
+	public NifMarkerHelper(final NifWriterFilter writerFilter) {
+
+		this.writerFilter = writerFilter;
 		// chsEnc = new DummyEncoder();
-		// codedText = textContainer.getCodedText();
-		// codes = textContainer.getCodes();
 	}
 
-	// public String toString (int quoteMode,
-	// boolean escapeGT,
-	// boolean codeOnlyMode,
-	// boolean gMode,
-	// boolean codeAttrs,
-	// boolean includeIts,
-	// LocaleId trgLocId)
-	// {
+	public void clear() {
+
+		totPartsLength = 0;
+	}
 
 	/**
 	 * Retrieves text from a text fragment. At the moment all the markers are
@@ -61,155 +79,41 @@ public class NifMarkerHelper {
 	 * 
 	 * @param content
 	 *            the text fragment.
+	 * @param locale
+	 *            the locale
+	 * @param a
+	 *            boolean stating if this content is from the target.
 	 * @return the text contained into this text fragment.
 	 */
-	public String toString(TextFragment content) {
+	public String toString(TextFragment content, LocaleId locale,
+			boolean isTarget) {
 		codedText = content.getCodedText();
 		codes = content.getCodes();
+		annotatedText = new StringBuilder();
+		annotatedTextStartIdx = -1;
 		StringBuilder tmp = new StringBuilder();
 		int index;
-		Code code;
+//		Code code;
 
 		for (int i = 0; i < codedText.length(); i++) {
 			switch (codedText.codePointAt(i)) {
 			case TextFragment.MARKER_OPENING:
 				index = TextFragment.toIndex(codedText.charAt(++i));
-				code = codes.get(index);
-				System.out.println(code.toString());
-				// if ( codeOnlyMode ) {
-				// tmp.append(code.toString());
-				// }
-				// else {
-				// // Output the code (if it's not a marker-only one)
-				// if ( !code.hasOnlyAnnotation() ) {
-				// if ( gMode ) {
-				// insertCodeStart(tmp, TAG.g, code, codeAttrs);
-				// tmp.append(">");
-				// }
-				// else {
-				// insertCodeStart(tmp, TAG.bpt, code, codeAttrs); //TODO:
-				// escape unsupported chars
-				// tmp.append(">");
-				// tmp.append(Util.escapeToXML(code.toString(), quoteMode,
-				// escapeGT, chsEnc));
-				// tmp.append("</bpt>");
-				// }
-				// }
-				// // Then, if needed, output the marker element
-				// // (Markers linked to original codes have the marker inside
-				// the spanned content)
-				// if ( code.hasAnnotation("protected") ) {
-				// tmp.append("<mrk mtype=\"protected\">");
-				// }
-				// else if ( includeIts &&
-				// code.hasAnnotation(GenericAnnotationType.GENERIC) ) {
-				// tmp.append("<mrk");
-				// outputITSAttributes(code.getGenericAnnotations(), quoteMode,
-				// escapeGT, tmp, true, true, trgLocId);
-				// tmp.append(">");
-				// }
-				// }
+				currentCode = codes.get(index);
+				markerOpened = true;
 				break;
 			case TextFragment.MARKER_CLOSING:
 				index = TextFragment.toIndex(codedText.charAt(++i));
-				code = codes.get(index);
-				System.out.println(code.toString());
-				// if ( codeOnlyMode ) {
-				// tmp.append(code.toString());
-				// }
-				// else {
-				// // Close the marker, if needed
-				// if ( includeIts &&
-				// code.hasAnnotation(GenericAnnotationType.GENERIC) ) {
-				// tmp.append("</mrk>");
-				// }
-				// else if ( code.hasAnnotation("protected") ) {
-				// tmp.append("</mrk>");
-				// }
-				// // Then close the code
-				// if ( !code.hasOnlyAnnotation() ) {
-				// if ( gMode ) {
-				// tmp.append("</g>");
-				// }
-				// else {
-				// insertCodeStart(tmp, TAG.ept, code, codeAttrs); //TODO:
-				// escape unsupported chars
-				// tmp.append(">");
-				// tmp.append(Util.escapeToXML(code.toString(), quoteMode,
-				// escapeGT, chsEnc));
-				// tmp.append("</ept>");
-				// }
-				// }
-				// }
+				markerOpened = false;
+				manageInlineAnnotation(isTarget, locale);
 				break;
 			case TextFragment.MARKER_ISOLATED:
-				index = TextFragment.toIndex(codedText.charAt(++i));
-				code = codes.get(index);
-				System.out.println(code.toString());
-				// if ( codeOnlyMode ) {
-				// tmp.append(code.toString());
-				// }
-				// else {
-				// if ( gMode ) {
-				// if ( code.getTagType() == TagType.OPENING ) {
-				// insertCodeStart(tmp, TAG.bx, code, codeAttrs);
-				// tmp.append("/>");
-				// }
-				// else if ( code.getTagType() == TagType.CLOSING ) {
-				// insertCodeStart(tmp, TAG.ex, code, codeAttrs);
-				// tmp.append("/>");
-				// }
-				// else {
-				// insertCodeStart(tmp, TAG.x, code, codeAttrs);
-				// if ( includeIts &&
-				// code.hasAnnotation(GenericAnnotationType.GENERIC) ) {
-				// outputITSAttributes(code.getGenericAnnotations(), quoteMode,
-				// escapeGT, tmp, true, false, null);
-				// }
-				// tmp.append("/>");
-				// }
-				// }
-				// else {
-				// if ( code.getTagType() == TagType.OPENING ) {
-				// insertCodeStart(tmp, TAG.it, code, codeAttrs); //TODO: escape
-				// unsupported chars
-				// tmp.append(" pos=\"open\">");
-				// tmp.append(Util.escapeToXML(code.toString(), quoteMode,
-				// escapeGT, chsEnc));
-				// tmp.append("</it>");
-				// }
-				// else if ( code.getTagType() == TagType.CLOSING ) {
-				// insertCodeStart(tmp, TAG.it, code, codeAttrs); //TODO: escape
-				// unsupported chars
-				// tmp.append(" pos=\"close\">");
-				// tmp.append(Util.escapeToXML(code.toString(), quoteMode,
-				// escapeGT, chsEnc));
-				// tmp.append("</it>");
-				// }
-				// else {
-				// insertCodeStart(tmp, TAG.ph, code, codeAttrs); //TODO: escape
-				// unsupported chars
-				// if ( includeIts &&
-				// code.hasAnnotation(GenericAnnotationType.GENERIC) ) {
-				// outputITSAttributes(code.getGenericAnnotations(), quoteMode,
-				// escapeGT, tmp, true, false, trgLocId);
-				// }
-				// tmp.append(">");
-				// tmp.append(Util.escapeToXML(code.toString(), quoteMode,
-				// escapeGT, chsEnc));
-				// tmp.append("</ph>");
-				// }
-				// }
-				// }
+//				index = TextFragment.toIndex(codedText.charAt(++i));
+//				code = codes.get(index);
+				// System.out.println(code.toString());
 				break;
 			case '>':
-				// if ( escapeGT ) tmp.append("&gt;");
-				// else {
-				// if (( i > 0 ) && ( codedText.charAt(i-1) == ']' ))
-				// tmp.append("&gt;");
-				// else
-				// tmp.append('>');
-				// }
+				tmp.append(codedText.charAt(i));
 				break;
 			case '\r': // Not a line-break in the XML context, but a literal
 				tmp.append("&#13;");
@@ -221,21 +125,9 @@ public class NifMarkerHelper {
 				tmp.append("&amp;");
 				break;
 			case '"':
-				// if ( quoteMode > 0 ) tmp.append("&quot;");
-				// else tmp.append('"');
 				break;
 			case '\'':
-				// switch ( quoteMode ) {
-				// case 1:
-				// tmp.append("&apos;");
-				// break;
-				// case 2:
-				// tmp.append("&#39;");
-				// break;
-				// default:
-				// tmp.append(codedText.charAt(i));
-				// break;
-				// }
+				tmp.append(codedText.charAt(i));
 				break;
 			default:
 				if (codedText.charAt(i) > 127) { // Extended chars
@@ -257,11 +149,65 @@ public class NifMarkerHelper {
 						}
 					}
 				} else { // ASCII chars
+					if (markerOpened) {
+						if (annotatedText.length() == 0) {
+							annotatedTextStartIdx = tmp.length();
+						}
+						annotatedText.append(codedText.charAt(i));
+					}
 					tmp.append(codedText.charAt(i));
 				}
 				break;
 			}
 		}
+		saveTotLength(tmp.toString());
 		return tmp.toString();
+	}
+
+	/**
+	 * Stores the total length of the parts examined so far.
+	 * 
+	 * @param text
+	 *            the text
+	 */
+	private void saveTotLength(String text) {
+
+		if (!Normalizer.isNormalized(text, Normalizer.Form.NFC)) {
+			text = Normalizer.normalize(text, Normalizer.Form.NFC);
+		}
+		totPartsLength = text.length();
+	}
+
+	/**
+	 * Manages the in line annotations for the current code.
+	 * 
+	 * @param isTarget
+	 *            boolean stating if it's content from the target
+	 * @param locale
+	 *            the locale.
+	 */
+	private void manageInlineAnnotation(boolean isTarget, LocaleId locale) {
+
+		if (currentCode != null && annotatedText.length() > 0) {
+			if (currentCode.getGenericAnnotations() != null) {
+				String normalizedString = annotatedText.toString();
+				if (!Normalizer.isNormalized(normalizedString,
+						Normalizer.Form.NFC)) {
+					normalizedString = Normalizer.normalize(normalizedString,
+							Normalizer.Form.NFC);
+				}
+				writerFilter.createResourceForInlineAnnotation(
+						normalizedString, annotatedTextStartIdx
+								+ totPartsLength, locale, isTarget,
+						currentCode.getGenericAnnotations());
+				for (GenericAnnotation annot : currentCode
+						.getGenericAnnotations()) {
+					System.out.println(annot.toString());
+				}
+			}
+		}
+		currentCode = null;
+		annotatedText = new StringBuilder();
+		annotatedTextStartIdx = -1;
 	}
 }

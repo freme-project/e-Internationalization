@@ -17,21 +17,42 @@ package eu.freme.i18n.okapi.nif.converter;
 
 import java.util.Arrays;
 
+/**
+ * Exception raised when a request is submitted for an unsupported MIME type.
+ */
 public class UnsupportedMimeTypeException extends Exception {
 
-	/**
-	 * 
-	 */
+	/** Serial version UID. */
 	private static final long serialVersionUID = 1L;
-	
-	public UnsupportedMimeTypeException(String unsupportedMimeType, String[] supportedTypes) {
-		
+
+	/**
+	 * Constructor.
+	 * 
+	 * @param unsupportedMimeType
+	 *            the unsupported MIME type.
+	 * @param supportedTypes
+	 *            the list of supported MIME types.
+	 */
+	public UnsupportedMimeTypeException(String unsupportedMimeType,
+			String[] supportedTypes) {
+
 		super(buildMessage(unsupportedMimeType, supportedTypes));
 	}
-	
-	private static String buildMessage(String unsupportedMimeType, String[] supportedTypes){
-		
-		return "Unsupported MIME Type: " + unsupportedMimeType + ". Supported types are " + Arrays.toString(supportedTypes);
+
+	/**
+	 * Builds the exception message.
+	 * 
+	 * @param unsupportedMimeType
+	 *            the unsupported MIME type
+	 * @param supportedTypes
+	 *            the list of supported MIME types.
+	 * @return the exception message.
+	 */
+	private static String buildMessage(String unsupportedMimeType,
+			String[] supportedTypes) {
+
+		return "Unsupported MIME Type: " + unsupportedMimeType
+				+ ". Supported types are " + Arrays.toString(supportedTypes);
 	}
 
 }

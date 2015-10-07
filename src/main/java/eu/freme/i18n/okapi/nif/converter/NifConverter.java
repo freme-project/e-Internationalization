@@ -28,8 +28,10 @@ import net.sf.okapi.common.LocaleId;
 import net.sf.okapi.common.MimeTypeMapper;
 import net.sf.okapi.common.pipeline.PipelineReturnValue;
 import net.sf.okapi.common.resource.RawDocument;
-import net.sf.okapi.filters.html.HtmlFilter;
+import net.sf.okapi.filters.its.html5.HTML5Filter;
+import net.sf.okapi.filters.openoffice.OpenOfficeFilter;
 import net.sf.okapi.filters.xliff.XLIFFFilter;
+import net.sf.okapi.filters.xml.XMLFilter;
 import net.sf.okapi.lib.extra.pipelinebuilder.XBatch;
 import net.sf.okapi.lib.extra.pipelinebuilder.XBatchItem;
 import net.sf.okapi.lib.extra.pipelinebuilder.XParameter;
@@ -38,6 +40,7 @@ import net.sf.okapi.lib.extra.pipelinebuilder.XPipelineStep;
 import net.sf.okapi.steps.common.RawDocumentToFilterEventsStep;
 import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
 import eu.freme.i18n.okapi.nif.step.NifParameters;
+import eu.freme.i18n.okapi.nif.step.NifSkeletonWriterStep;
 import eu.freme.i18n.okapi.nif.step.NifWriterStep;
 
 /**
@@ -45,6 +48,65 @@ import eu.freme.i18n.okapi.nif.step.NifWriterStep;
  * format.
  */
 public class NifConverter {
+
+	private InputStream convert2NifWithMarkers(final InputStream rawDocument,
+			String mimeType, final LocaleId sourceLocale,
+			final String nifUriPrefix) throws ConversionException {
+
+		InputStream nifInStream = null;
+		
+		File outputFile = new File(System.getProperty("user.home"),
+				"nifConvertedFile-skeleton" + System.currentTimeMillis());
+		ConversionException exception = null;
+		try {
+			// creates a raw document object from the input stream
+			RawDocument document = createRawDocument(rawDocument, mimeType,
+					sourceLocale);
+			/*
+			 * Create the Okapi pipeline. It includes following steps: -
+			 * RawDocumentToFilterEventsStep: read a raw document by using the
+			 * appropriate filter depending on the MIME Type. Then sends filter
+			 * events. - NifWriterStep: handles the events from the filter and
+			 * creates a NIF document.
+			 */
+			XPipeline pipeline = new XPipeline(
+					"Raw document to NIF conversion", new XBatch(
+							new XBatchItem(document)),
+					new RawDocumentToFilterEventsStep(),
+					 new XPipelineStep(
+					 new NifSkeletonWriterStep(), new XParameter(
+					 NifParameters.OUTPUT_URI, outputFile
+					 .toURI().toString()),
+					 new XParameter(NifParameters.NIF_LANGUAGE,
+					 RDFSerialization.TURTLE.toRDFLang()),
+					 new XParameter(NifParameters.NIF_URI_PREFIX,
+					 nifUriPrefix)));
+
+			// execute the pipeline
+			PipelineReturnValue retValue = pipeline.execute();
+			if (retValue.equals(PipelineReturnValue.SUCCEDED)) {
+				// Retrieve the input stream from the output file and then
+				// delete it.
+				nifInStream = new FileInputStream(outputFile);
+				if (outputFile.exists()) {
+					outputFile.delete();
+				}
+			} else {
+				exception = new ConversionException(
+						"Unexpected pipeline exit status: " + retValue.name());
+			}
+		} catch (UnsupportedMimeTypeException e) {
+			exception = new ConversionException(e.getMessage(), e);
+		} catch (Exception e) {
+			exception = new ConversionException(
+					"Error while coverting the document", e);
+		}
+		if (exception != null) {
+			throw exception;
+		}
+
+		return nifInStream;
+	}
 
 	/**
 	 * Converts a file to NIF format.
@@ -74,6 +136,8 @@ public class NifConverter {
 		 */
 		File outputFile = new File(System.getProperty("user.home"),
 				"nifConvertedFile" + System.currentTimeMillis());
+
+
 		ConversionException exception = null;
 		try {
 			// creates a raw document object from the input stream
@@ -89,14 +153,21 @@ public class NifConverter {
 			XPipeline pipeline = new XPipeline(
 					"Raw document to NIF conversion", new XBatch(
 							new XBatchItem(document)),
-					new RawDocumentToFilterEventsStep(), new XPipelineStep(
-							new NifWriterStep(), new XParameter(
-									NifParameters.OUTPUT_URI, outputFile
-											.toURI().toString()),
-							new XParameter(NifParameters.NIF_LANGUAGE,
-									RDFSerialization.TURTLE.toRDFLang()),
-							new XParameter(NifParameters.NIF_URI_PREFIX,
-									nifUriPrefix)));
+					new RawDocumentToFilterEventsStep(),
+					// new XPipelineStep(
+					// new NifSkeletonWriterStep(), new XParameter(
+					// NifParameters.OUTPUT_URI, skeletonOutputFile
+					// .toURI().toString()),
+					// new XParameter(NifParameters.NIF_LANGUAGE,
+					// RDFSerialization.TURTLE.toRDFLang()),
+					// new XParameter(NifParameters.NIF_URI_PREFIX,
+					// nifUriPrefix)),
+					new XPipelineStep(new NifWriterStep(), new XParameter(
+							NifParameters.OUTPUT_URI, outputFile.toURI()
+									.toString()), new XParameter(
+							NifParameters.NIF_LANGUAGE, RDFSerialization.TURTLE
+									.toRDFLang()), new XParameter(
+							NifParameters.NIF_URI_PREFIX, nifUriPrefix)));
 
 			// execute the pipeline
 			PipelineReturnValue retValue = pipeline.execute();
@@ -158,10 +229,10 @@ public class NifConverter {
 		 * avoids Okapi stopping the conversion and complaining for null source
 		 * and target locales.
 		 */
+		if (sourceLocale == null) {
+			document.setSourceLocale(getFakeLocaleId());
+		}
 		if (mimeType.equals(MimeTypeMapper.XLIFF_MIME_TYPE)) {
-			if (sourceLocale == null) {
-				document.setSourceLocale(getFakeLocaleId());
-			}
 			document.setTargetLocale(getFakeLocaleId());
 		}
 		return document;
@@ -196,7 +267,14 @@ public class NifConverter {
 			filterId = new XLIFFFilter().getConfigurations().get(0).configId;
 			break;
 		case MimeTypeMapper.HTML_MIME_TYPE:
-			filterId = new HtmlFilter().getConfigurations().get(0).configId;
+			filterId = new HTML5Filter().getConfigurations().get(0).configId;
+			// filterId = new HtmlFilter().getConfigurations().get(0).configId;
+			break;
+		case MimeTypeMapper.XML_MIME_TYPE:
+			filterId = new XMLFilter().getConfigurations().get(0).configId;
+			break;
+		case MimeTypeMapper.OPENOFFICE_MIME_TYPE:
+			filterId = new OpenOfficeFilter().getConfigurations().get(0).configId;
 			break;
 		default:
 			throw new UnsupportedMimeTypeException(mimeType, new String[] {
@@ -270,13 +348,20 @@ public class NifConverter {
 		return convert2Nif(rawDocument, mimeType, (LocaleId) null, uriPrefix);
 	}
 	
+	public InputStream convert2NifWithMarkers(final InputStream rawDocument,
+			final String mimeType, final String uriPrefix)
+			throws ConversionException {
+
+		return convert2NifWithMarkers(rawDocument, mimeType, (LocaleId) null, uriPrefix);
+	}
+
 	public static void main(String[] args) {
 
 		try {
 			InputStream inStream = new FileInputStream(new File(
 					"C:\\Users\\Martab\\test1.xlf"));
-//			InputStream inStream = new FileInputStream(new File(
-//					"C:\\Users\\Martab\\test12.html"));
+			// InputStream inStream = new FileInputStream(new File(
+			// "C:\\Users\\Martab\\test12.html"));
 			NifConverter converter = new NifConverter();
 			InputStream nifFileStream = converter.convert2Nif(inStream,
 					MimeTypeMapper.XLIFF_MIME_TYPE, "http://freme-project.eu/");

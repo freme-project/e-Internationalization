@@ -13,37 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package eu.freme.i18n.okapi.nif.converter;
+package eu.freme.i18n.okapi.nif.filter;
 
-/**
- * Exception raised when an error occurs while converting a file to NIF.
- */
-public class ConversionException extends Exception {
+interface SkeletonConstants {
 
-	/** The serial version UID. */
-	private static final long serialVersionUID = 1L;
+	public  String REPLACE_STRING = "[#$$self$]";
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param message
-	 *            the message.
-	 * @param cause
-	 *            the cause.
-	 */
-	public ConversionException(String message, Throwable cause) {
-		super(message, cause);
-	}
+	public String POINTER_STRING_PREFIX = "[#$";
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param message
-	 *            the message
-	 */
-	public ConversionException(String message) {
-
-		super(message);
-	}
+	public String STANDOFF_STRING_PREFIX = "$#@StandOff@#$";
+	
+	public String PROP_STRING_PREFIX = "[#$$self$@%";
 
 }

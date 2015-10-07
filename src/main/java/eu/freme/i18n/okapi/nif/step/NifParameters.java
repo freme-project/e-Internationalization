@@ -18,22 +18,39 @@ package eu.freme.i18n.okapi.nif.step;
 import net.sf.okapi.common.ParametersDescription;
 import net.sf.okapi.common.StringParameters;
 
+/**
+ * Parameters used in all NIF steps.
+ */
 public class NifParameters extends StringParameters {
 
+	/** The output file URI constant. */
 	public static final String OUTPUT_URI = "outputURI";
 
+	/** The output base path constant. */
 	public static final String OUTPUT_BASE_PATH = "outBasePath";
 
+	/** The NIF serialization language constant. */
 	public static final String NIF_LANGUAGE = "nifLanguage";
 
+	/** The URI prefix to be used for NIF resources. */
 	public static final String NIF_URI_PREFIX = "nifUriPrefix";
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sf.okapi.common.StringParameters#reset()
+	 */
 	@Override
 	public void reset() {
 		setOutputURI("");
 		setNifLanguage("");
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see net.sf.okapi.common.BaseParameters#getParametersDescription()
+	 */
 	@Override
 	public ParametersDescription getParametersDescription() {
 		ParametersDescription desc = new ParametersDescription(this);
@@ -49,35 +66,79 @@ public class NifParameters extends StringParameters {
 		return desc;
 	}
 
+	/**
+	 * Gets the output file URI.
+	 * 
+	 * @return the output file URI.
+	 */
 	public String getOutputURI() {
 		return getString(OUTPUT_URI);
 	}
 
+	/**
+	 * Gets the NIF serialization language.
+	 * 
+	 * @return the NIF serialization language.
+	 */
 	public String getNifLanguage() {
 		return getString(NIF_LANGUAGE);
 	}
 
+	/**
+	 * Sets the output file URI.
+	 * 
+	 * @param outputURI
+	 *            the output file URI.
+	 */
 	public void setOutputURI(final String outputURI) {
 		setString(OUTPUT_URI, outputURI);
 	}
 
+	/**
+	 * Sets the NIF serialization language.
+	 * 
+	 * @param nifLanguage
+	 *            the NIF serialization language.
+	 */
 	public void setNifLanguage(final String nifLanguage) {
 		setString(NIF_LANGUAGE, nifLanguage);
 	}
 
+	/**
+	 * Gets the output base path.
+	 * 
+	 * @return the output base path.
+	 */
 	public String getOutBasePath() {
 		return getString(OUTPUT_BASE_PATH);
 	}
 
+	/**
+	 * Sets the output base path.
+	 * 
+	 * @param outputBasePath
+	 *            the output base path.
+	 */
 	public void setOutBasePath(final String outputBasePath) {
 		setString(OUTPUT_BASE_PATH, outputBasePath);
 	}
-	
-	public String getNifURIPrefix(){
+
+	/**
+	 * Gets the URI prefix to be used in the NIF resources definition.
+	 * 
+	 * @return the URI prefix to be used in the NIF resources definition.
+	 */
+	public String getNifURIPrefix() {
 		return getString(NIF_URI_PREFIX);
 	}
-	
-	public void setNifURIPrefix(final String nifUriPrefix){
+
+	/**
+	 * Sets the URI prefix to be used in the NIF resources definition.
+	 * 
+	 * @param nifUriPrefix
+	 *            the URI prefix to be used in the NIF resources definition.
+	 */
+	public void setNifURIPrefix(final String nifUriPrefix) {
 		setString(NIF_URI_PREFIX, nifUriPrefix);
 	}
 }

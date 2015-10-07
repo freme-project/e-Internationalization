@@ -30,10 +30,8 @@ import net.sf.okapi.steps.common.RawDocumentToFilterEventsStep;
 import org.junit.Test;
 
 import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
-import eu.freme.i18n.okapi.nif.step.NifParameters;
-import eu.freme.i18n.okapi.nif.step.NifWriterStep;
 
-public class NifWriterStepTest {
+public class NifSkeletonWriterStepTest {
 
 	private static final LocaleId ENUS = new LocaleId("en", "us");
 	private static final LocaleId DEDE = new LocaleId("de", "de");
@@ -45,24 +43,28 @@ public class NifWriterStepTest {
 		File baseDir = new File(this.getClass().getResource("/nifConversion")
 				.toURI());
 		String pathBase = baseDir.getAbsolutePath();
-		String src1Path = pathBase + "/src2/";
+		String src1Path = pathBase + "/ITS/HTML/";
 		new XPipeline("Test pipeline for NifWriterStep", new XBatch(
-				new XBatchItem(new File(src1Path, "TestDocument01.odt").toURI().toURL(),
-						"UTF-8", ENUS, ITIT)//,
+				new XBatchItem(new File(src1Path, "text-analysis2.html").toURI()
+						.toURL(), "UTF-8", ENUS, ITIT)// ,
 
-//				new XBatchItem(new File(src1Path, "TestPresentation01.odp").toURI()
-//						.toURL(), "UTF-8", ENUS, DEDE),
-//
-//				new XBatchItem(new File(src1Path, "TestSpreadsheet01.ods").toURI().toURL(),
-//						"UTF-8", ENUS, DEDE)
+				// new XBatchItem(new File(src1Path,
+				// "TestPresentation01.odp").toURI()
+				// .toURL(), "UTF-8", ENUS, DEDE),
+				//
+				// new XBatchItem(new File(src1Path,
+				// "TestSpreadsheet01.ods").toURI().toURL(),
+				// "UTF-8", ENUS, DEDE)
 				),
 
-		// mandatory step --> starting from the raw document, it sends
-		// appropriate events, then handled by next steps in the pipeline
+				// mandatory step --> starting from the raw document, it sends
+				// appropriate events, then handled by next steps in the
+				// pipeline
 				new RawDocumentToFilterEventsStep(),
 
-				new XPipelineStep(new NifWriterStep(), new XParameter(
+				new XPipelineStep(new NifSkeletonWriterStep(), new XParameter(
 						NifParameters.OUTPUT_BASE_PATH, pathBase),
+						new XParameter(NifParameters.NIF_URI_PREFIX, "http://freme-project.eu/"), 
 				// Defines the desired serialization. Allowed values:
 				// RDFSerialization.TURTLE.toRDFLang(),
 				// RDFSerialization.JSON-LD.toRDFLang()
@@ -71,5 +73,4 @@ public class NifWriterStepTest {
 								RDFSerialization.TURTLE.toRDFLang())))
 				.execute();
 	}
-
 }

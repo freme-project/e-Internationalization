@@ -22,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 
 import net.sf.okapi.common.MimeTypeMapper;
 import eu.freme.i18n.okapi.nif.converter.ConversionException;
+import eu.freme.i18n.okapi.nif.converter.HTMLBackConverter;
 import eu.freme.i18n.okapi.nif.converter.NifConverter;
 
 public class EInternationalizationAPI {
@@ -30,13 +31,20 @@ public class EInternationalizationAPI {
 
 	public static final String MIME_TYPE_HTML = MimeTypeMapper.HTML_MIME_TYPE;
 	
+	public static final String MIME_TYPE_XML = MimeTypeMapper.XML_MIME_TYPE;
+	
+	public static final String MIME_TYPE_ODT = MimeTypeMapper.OPENOFFICE_MIME_TYPE;
+	
 	private static final String FREME_NIF_URI_PREFIX = "http://freme-project.eu/";
 
 	private NifConverter converter;
+	
+	private HTMLBackConverter backConverter;
 
 	public EInternationalizationAPI() {
 
 		converter = new NifConverter();
+		backConverter = new HTMLBackConverter();
 	}
 
 	public Reader convertToTurtle(InputStream is, String mimeType)
@@ -49,6 +57,30 @@ public class EInternationalizationAPI {
 			
 		} catch (UnsupportedEncodingException e) {
 			//UTF-8 encoding should always be supported
+		}
+		return reader;
+	}
+	
+	public Reader convertToTurtleWithMarkups(InputStream is, String mimeType) throws ConversionException{
+		
+		Reader reader = null;
+		InputStream turtleStream = converter.convert2NifWithMarkers(is, mimeType, FREME_NIF_URI_PREFIX);
+		try {
+			reader = new InputStreamReader(turtleStream, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// UTF-8 encoding should always be supported
+		}
+		return reader;
+	}
+	
+	public Reader convertBack(InputStream markupsFile, InputStream enrichedFile){
+		
+		Reader reader = null;
+		InputStream originalStream = backConverter.convertBack(markupsFile, enrichedFile);
+		try {
+			reader = new InputStreamReader(originalStream, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// UTF-8 encoding should always be supported
 		}
 		return reader;
 	}
