@@ -48,7 +48,9 @@ Converted files will be saved into the `okapi-nif-step\target\test-classes\nifCo
 
 ## License
 
-Copyright 2015 Deutsches Forschungszentrum für Künstliche Intelligenz
+Copyright 2015 Agro-Know, Deutsches Forschungszentrum für Künstliche Intelligenz, iMinds,
+Institut für Angewandte Informatik e. V. an der Universität Leipzig,
+Istituto Superiore Mario Boella, Tilde, Vistatec, WRIPL
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

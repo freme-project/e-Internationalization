@@ -1,6 +1,8 @@
 <!--
 
-    Copyright (C) 2015 Deutsches Forschungszentrum für Künstliche Intelligenz (http://freme-project.eu)
+    Copyright (C) 2015 Agro-Know, Deutsches Forschungszentrum für Künstliche Intelligenz, iMinds,
+    Institut für Angewandte Informatik e. V. an der Universität Leipzig,
+    Istituto Superiore Mario Boella, Tilde, Vistatec, WRIPL (http://freme-project.eu)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
@@ -307,8 +309,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 				</configuration>
 			</plugin>
 
@@ -319,7 +321,12 @@
 				<configuration>
 					<header>https://raw.githubusercontent.com/mycila/license-maven-plugin/master/license-maven-plugin/src/main/resources/com/mycila/maven/plugin/license/templates/APACHE-2.txt</header>
 					<properties>
-						<owner>Deutsches Forschungszentrum für Künstliche Intelligenz</owner>
+						<owner>
+<!-- IMPORTANT: keep this indentation! So the copyright information will be well formatted in all header files. -->
+Agro-Know, Deutsches Forschungszentrum für Künstliche Intelligenz, iMinds,
+Institut für Angewandte Informatik e. V. an der Universität Leipzig,
+Istituto Superiore Mario Boella, Tilde, Vistatec, WRIPL
+						</owner>
 						<email>http://freme-project.eu</email>
 					</properties>
 					<excludes>
@@ -332,13 +339,6 @@
                         <exclude>LICENSE-3RD-PARTY</exclude>
 					</excludes>
 				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>check</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 		</plugins>
