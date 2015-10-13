@@ -20,6 +20,8 @@ package eu.freme.i18n.okapi.api;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -178,6 +180,22 @@ public class EInternationalizationAPITest {
 //				unsuppException.getMessage(),
 //				exception.getMessage());
 //		Assert.assertTrue(exception.getCause() instanceof UnsupportedMimeTypeException);
+	}
+	
+	@Test
+	public void testRoundtripping() throws IOException{
+		
+		InputStream skeleton = getClass().getResourceAsStream(
+				"/roundtripping/input-html.txt");
+		InputStream turtle = getClass().getResourceAsStream("/input-turtle.txt");
+		
+		Reader reader = eInternationalizationAPI.convertBack(skeleton, turtle);
+		BufferedReader br = new BufferedReader(reader);
+		String line;
+		while((line=br.readLine())!=null){
+			System.out.println(br);
+		}
+		br.close();
 	}
 
 }
