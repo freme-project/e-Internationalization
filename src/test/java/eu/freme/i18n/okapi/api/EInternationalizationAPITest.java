@@ -197,7 +197,7 @@ public class EInternationalizationAPITest {
 			
 			//STEP 2: save the skeleton file somewhere on the machine
 			BufferedReader br = new BufferedReader(skeletonReader);
-			File skeletonFile = new File(System.getProperty("user.home"), "skeleton.ttl");
+			File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
 			FileWriter writer = new FileWriter(skeletonFile);
 			String line;
 			while ((line = br.readLine()) != null) {
