@@ -397,19 +397,32 @@ public class NifWriterFilter extends AbstractNifWriterFilter {
 				"ReferenceContext");
 		while (iterator.hasNext()) {
 			Resource currRes = iterator.next();
-			if (!currRes.getURI().equals(contextURI)) {
-				Property typeProp = model
-						.createProperty(RDFConstants.typePrefix);
-				currRes.addProperty(refContext, contextURI);
-				currRes.addProperty(typeProp,
-						model.createResource(RDFConstants.nifPrefix + "Phrase"));
-			} else {
-				// if the current resource has the same URI as the context URI,
-				// then it is the reference context resource --> remove the
-				// "anchorOf" property
-				currRes.removeAll(anchorOf);
+			if (uriPrefixMacthes(contextURI, currRes.getURI())) {
+				if (!currRes.getURI().equals(contextURI)) {
+					Property typeProp = model
+							.createProperty(RDFConstants.typePrefix);
+					currRes.addProperty(refContext, contextURI);
+					currRes.addProperty(
+							typeProp,
+							model.createResource(RDFConstants.nifPrefix
+									+ "Phrase"));
+				} else {
+					// if the current resource has the same URI as the context
+					// URI,
+					// then it is the reference context resource --> remove the
+					// "anchorOf" property
+					currRes.removeAll(anchorOf);
+				}
 			}
 		}
+	}
+	
+	private boolean uriPrefixMacthes(String uri1, String uri2){
+		
+		int offsetCharIndex1 = uri1.indexOf(URI_CHAR_OFFSET);
+		int offsetCharIndex2 = uri2.indexOf(URI_CHAR_OFFSET);
+		
+		return uri1.substring(0, offsetCharIndex1).equals(uri2.substring(0, offsetCharIndex2));
 	}
 
 	/**
