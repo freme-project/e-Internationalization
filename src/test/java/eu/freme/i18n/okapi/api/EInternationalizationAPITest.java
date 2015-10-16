@@ -184,45 +184,55 @@ public class EInternationalizationAPITest {
 		// UnsupportedMimeTypeException);
 	}
 
-	@Test
-	public void testRoundtripping() throws IOException {
+	public void testRoundTripping(String originalFilePath, String enrichmentPath)
+			throws ConversionException, IOException {
+		// STEP 1: creation of the skeleton file: the TTL file with the context
+		// including markups.
+		InputStream originalFile = getClass().getResourceAsStream(
+				originalFilePath);
+		Reader skeletonReader = eInternationalizationAPI
+				.convertToTurtleWithMarkups(originalFile,
+						EInternationalizationAPI.MIME_TYPE_HTML);
 
-		try {
-			//STEP 1: creation of the skeleton file: the TTL file with the context including markups.
-			InputStream originalFile = getClass().getResourceAsStream(
-					"/roundtripping/input-html.txt");
-			Reader skeletonReader = eInternationalizationAPI
-					.convertToTurtleWithMarkups(originalFile,
-							EInternationalizationAPI.MIME_TYPE_HTML);
-			
-			//STEP 2: save the skeleton file somewhere on the machine
-			BufferedReader br = new BufferedReader(skeletonReader);
-			File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
-			FileWriter writer = new FileWriter(skeletonFile);
-			String line;
-			while ((line = br.readLine()) != null) {
-				System.out.println(line);
-				writer.write(line);
-			}
-			br.close();
-			writer.close();
-			
-			//STEP 3: execute the conversion back by submitting the skeleton file and the enriched file
-			InputStream skeletonStream = new FileInputStream(skeletonFile);
-			InputStream turtle = getClass().getResourceAsStream(
-					"/roundtripping/input-turtle.txt");
-			Reader reader = eInternationalizationAPI.convertBack(skeletonStream,
-					turtle);
-			br = new BufferedReader(reader);
-			while ((line = br.readLine()) != null) {
-				System.out.println(line);
-			}
-			br.close();
-			skeletonFile.delete();
-		} catch (ConversionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		// STEP 2: save the skeleton file somewhere on the machine
+		BufferedReader br = new BufferedReader(skeletonReader);
+		File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
+		FileWriter writer = new FileWriter(skeletonFile);
+		String line;
+		while ((line = br.readLine()) != null) {
+			System.out.println(line);
+			writer.write(line);
 		}
+		br.close();
+		writer.close();
+
+		// STEP 3: execute the conversion back by submitting the skeleton file
+		// and the enriched file
+		InputStream skeletonStream = new FileInputStream(skeletonFile);
+		InputStream turtle = getClass().getResourceAsStream(
+				enrichmentPath);
+		Reader reader = eInternationalizationAPI.convertBack(skeletonStream,
+				turtle);
+		br = new BufferedReader(reader);
+		while ((line = br.readLine()) != null) {
+			System.out.println(line);
+		}
+		br.close();
+		skeletonFile.delete();
+	}
+
+	@Test
+	public void testSimpleRoundtripping() throws IOException, ConversionException {
+
+		testRoundTripping("/roundtripping/input-html.txt",
+				"/roundtripping/input-turtle.txt");
+	}
+	
+	@Test
+	public void testLongRoundtripping() throws IOException, ConversionException {
+
+		testRoundTripping("/roundtripping/vt-input-html.txt",
+				"/roundtripping/vt-input-turtle.txt");
 	}
 
 }
