@@ -146,6 +146,10 @@ public class HTMLBackConverter {
 						}
 
 					} else {
+						System.out.println("*******************************************");
+						System.out.println("Skeleton length: " + skeletonContext.length() );
+						System.out.println("last index: " + skeletonLastIdx);
+						System.out.println("second Index" + tuRes.getWasConvFromStartIdx());
 						originalFileString
 								.append(skeletonContext.substring(
 										skeletonLastIdx,
@@ -194,6 +198,7 @@ public class HTMLBackConverter {
 					&& currRes.getEndIdx() >= tuResource.getEndIdx()) {
 				found = true;
 			}
+			index++;
 		}
 		if (found) {
 			StringBuilder annotatedText = new StringBuilder();
@@ -205,13 +210,14 @@ public class HTMLBackConverter {
 			annotatedText.append(">");
 			StringBuilder newText = new StringBuilder();
 			newText.append(currRes.getText().substring(0,
-					tuResource.getStartIdx() - currRes.getStartIdx()));
+					tuResource.getStartIdx() - currRes.getStartIdx() + currRes.getAdditionalOffset()));
 			newText.append(annotatedText);
 			newText.append(tuResource.getText());
 			newText.append("</span>");
 			newText.append(currRes.getText().substring(
-					tuResource.getEndIdx() - currRes.getStartIdx()));
+					tuResource.getEndIdx() - currRes.getStartIdx() + currRes.getAdditionalOffset()));
 			currRes.setText(newText.toString());
+			currRes.setAdditionalOffset(currRes.getAdditionalOffset() + annotatedText.length() + "</span>".length());
 		}
 
 	}
@@ -422,11 +428,11 @@ public class HTMLBackConverter {
 		FileInputStream skeletonFile = new FileInputStream(
 				new File(
 						"C:\\Users\\Martab\\Projects\\FREME\\e-Internationalization\\e-Internationalization\\target\\test-classes\\nifConversion",
-						"text-analysis2-skeleton.html.ttl"));
+						"stupid-test-skeleton.html.ttl"));
 		FileInputStream enrichedFile = new FileInputStream(
 				new File(
 						"C:\\Users\\Martab\\Projects\\FREME\\e-Internationalization\\e-Internationalization\\target\\test-classes\\nifConversion",
-						"text-analysis2.html.ttl"));
+						"stupid-test-enriched.html.ttl"));
 		backConverter.convertBack(skeletonFile, enrichedFile, "TTL", "TTL");
 	}
 
@@ -454,6 +460,8 @@ class TextUnitResource {
 
 	/** The end index in the skeleton context. */
 	private int wasConvFromEndIdx;
+	
+	private int additionalOffset;
 
 	/**
 	 * Constructor.
@@ -561,6 +569,15 @@ class TextUnitResource {
 	 */
 	public void setWasConvFromEndIdx(int wasConvFromEndIdx) {
 		this.wasConvFromEndIdx = wasConvFromEndIdx;
+	}
+
+	
+	public int getAdditionalOffset() {
+		return additionalOffset;
+	}
+
+	public void setAdditionalOffset(int additionalOffset) {
+		this.additionalOffset = additionalOffset;
 	}
 
 	/*

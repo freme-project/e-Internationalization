@@ -228,17 +228,17 @@ public class NifSkeletonMarkerHelper {
 			}
 			manageTextUnitAndSkeleton(tuInfo, textInfoList, skeletonMap,
 					skeletonChunks);
-			StringBuilder skelString = new StringBuilder();
-			if (skeleton != null) {
-				skelString.append(skeleton);
-				if (!skeletonChunks.isEmpty()) {
-					while (skeletonChunks.peek() != null) {
-						skelString.append(skeletonChunks.poll());
-					}
+		}
+		StringBuilder skelString = new StringBuilder();
+		if (skeleton != null) {
+			skelString.append(skeleton);
+			if (!skeletonChunks.isEmpty()) {
+				while (skeletonChunks.peek() != null) {
+					skelString.append(skeletonChunks.poll());
 				}
-				skeletonMap.put(textUnitId + "-" + (++idCounter),
-						skelString.toString());
 			}
+			skeletonMap.put(textUnitId + "-" + (++idCounter),
+					skelString.toString());
 		}
 	}
 

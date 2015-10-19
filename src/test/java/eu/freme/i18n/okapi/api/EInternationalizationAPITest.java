@@ -20,6 +20,11 @@ package eu.freme.i18n.okapi.api;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -129,7 +134,7 @@ public class EInternationalizationAPITest {
 		}
 	}
 	
-	@Test
+//	@Test
 	public void testEInternationalizationAPIODT(){
 		
 		InputStream is = getClass().getResourceAsStream(
@@ -180,4 +185,105 @@ public class EInternationalizationAPITest {
 //		Assert.assertTrue(exception.getCause() instanceof UnsupportedMimeTypeException);
 	}
 
+//	@Test
+	public void testRoundtripping(){
+		
+		InputStream is1 = getClass().getResourceAsStream(
+				
+				"/nifConversion/src1/longfile.html");
+		InputStream is2 = getClass().getResourceAsStream(
+				"/nifConversion/src1/longfile.html");
+		try {
+			Reader nifFileReader = eInternationalizationAPI.convertToTurtle(is1, EInternationalizationAPI.MIME_TYPE_HTML);
+			Reader skeleton = eInternationalizationAPI.convertToTurtleWithMarkups(is2, EInternationalizationAPI.MIME_TYPE_HTML);
+			File nifFile = new File(System.getProperty("user.home"), "roundtrippingTest.ttl");
+			File skeletonFile = new File(System.getProperty("user.home"), "roundtrippingSkeletonTest.ttl");
+			FileWriter fileWriter  = new FileWriter(nifFile);
+			BufferedReader br = new BufferedReader(nifFileReader);
+			String line;
+			while ((line = br.readLine()) != null) {
+				System.out.println(line);
+				fileWriter.write(line);
+			}
+			br.close();
+			fileWriter.close();
+			
+			fileWriter  = new FileWriter(skeletonFile);
+			br = new BufferedReader(skeleton);
+			while ((line = br.readLine()) != null) {
+				System.out.println(line);
+				fileWriter.write(line);
+			}
+			br.close();
+			fileWriter.close();
+			
+			Reader finalReader = eInternationalizationAPI.convertBack(new FileInputStream(skeletonFile), new FileInputStream(nifFile));
+			br = new BufferedReader(finalReader);
+			while ((line = br.readLine()) != null) {
+				System.out.println(line);
+			}
+			br.close();
+			nifFile.delete();
+			skeletonFile.delete();
+			
+		} catch (ConversionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public void testRoundTripping(String originalFilePath, String enrichmentPath)
+			throws ConversionException, IOException {
+		// STEP 1: creation of the skeleton file: the TTL file with the context
+		// including markups.
+		InputStream originalFile = getClass().getResourceAsStream(
+				originalFilePath);
+		Reader skeletonReader = eInternationalizationAPI
+				.convertToTurtleWithMarkups(originalFile,
+						EInternationalizationAPI.MIME_TYPE_HTML);
+
+		// STEP 2: save the skeleton file somewhere on the machine
+		BufferedReader br = new BufferedReader(skeletonReader);
+		File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
+		FileWriter writer = new FileWriter(skeletonFile);
+		String line;
+		while ((line = br.readLine()) != null) {
+			System.out.println(line);
+			writer.write(line);
+		}
+		br.close();
+		writer.close();
+
+		// STEP 3: execute the conversion back by submitting the skeleton file
+		// and the enriched file
+		InputStream skeletonStream = new FileInputStream(skeletonFile);
+		InputStream turtle = getClass().getResourceAsStream(
+				enrichmentPath);
+		Reader reader = eInternationalizationAPI.convertBack(skeletonStream,
+				turtle);
+		br = new BufferedReader(reader);
+		while ((line = br.readLine()) != null) {
+			System.out.println(line);
+		}
+		br.close();
+		skeletonFile.delete();
+	}
+
+//	@Test
+	public void testSimpleRoundtripping() throws IOException, ConversionException {
+
+		testRoundTripping("/roundtripping/input-html.txt",
+				"/roundtripping/input-turtle.txt");
+	}
+	
+	@Test
+	public void testLongRoundtripping() throws IOException, ConversionException {
+
+		testRoundTripping("/roundtripping/vt-input-html.txt",
+				"/roundtripping/vt-input-turtle.txt");
+	}
 }

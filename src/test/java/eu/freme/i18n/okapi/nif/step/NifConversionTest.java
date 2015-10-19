@@ -33,9 +33,9 @@ public class NifConversionTest {
 		File baseDir = new File(this.getClass().getResource("/nifConversion")
 				.toURI());
 		String pathBase = baseDir.getAbsolutePath();
-		String fileName = "text-analysis2";
+		String fileName = "stupid-test";
 		String fileExt = ".html";
-		String src1Path = pathBase + "/ITS/HTML/";
+		String src1Path = pathBase + "/ITS/HTML//";
 		File outFile = new File(pathBase, fileName+fileExt + ".ttl");
 		File skelOutFile = new File(pathBase, fileName+"-skeleton"+fileExt + ".ttl");
 		RawDocument document = new RawDocument(new FileInputStream(new File(src1Path, fileName+fileExt )), "UTF-8", ENUS);

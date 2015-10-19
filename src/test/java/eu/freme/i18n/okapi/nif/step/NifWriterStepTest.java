@@ -49,7 +49,7 @@ public class NifWriterStepTest {
 		String pathBase = baseDir.getAbsolutePath();
 		String src1Path = pathBase + "/src2/";
 		new XPipeline("Test pipeline for NifWriterStep", new XBatch(
-				new XBatchItem(new File(src1Path, "TestDocument01.odt").toURI().toURL(),
+				new XBatchItem(new File(src1Path, "TestDocument02.odt").toURI().toURL(),
 						"UTF-8", ENUS, ITIT)//,
 
 //				new XBatchItem(new File(src1Path, "TestPresentation01.odp").toURI()

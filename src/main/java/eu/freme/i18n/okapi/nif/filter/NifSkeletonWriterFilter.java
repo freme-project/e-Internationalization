@@ -17,6 +17,8 @@ package eu.freme.i18n.okapi.nif.filter;
 
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -225,12 +227,14 @@ public class NifSkeletonWriterFilter extends AbstractNifWriterFilter {
 		for (Entry<String, String> skelEntry : skeletonMap.entrySet()) {
 			int startPointerIdx = -1;
 			int endPointerIdx = -1;
+//			int idCounter = 1;
+			List<TextUnitInfo> tuInfoList = getTextUnitInfoListForSkel(skelEntry.getKey());
 			while (skelEntry.getValue().contains(
 					SkeletonConstants.POINTER_STRING_PREFIX)) {
 				startPointerIdx = skelEntry.getValue().indexOf(
 						SkeletonConstants.POINTER_STRING_PREFIX);
 				endPointerIdx = skelEntry.getValue().substring(startPointerIdx)
-						.indexOf("]")
+						.indexOf("]") //TODO +1: "]" LENGTH
 						+ startPointerIdx;
 				String pointedId = skelEntry
 						.getValue()
@@ -241,12 +245,27 @@ public class NifSkeletonWriterFilter extends AbstractNifWriterFilter {
 								endPointerIdx);
 				TextUnitInfo pointedUnitInfo = findFirstTextUnitById(pointedId);
 				if (pointedUnitInfo != null) {
-					pointedUnitInfo.setOffset(pointedUnitInfo.getOffset()
-							+ startPointerIdx);
-					pointedUnitInfo.setTuId(skelEntry.getKey());
+//					if (skelEntry.getValue().charAt(startPointerIdx - 1) == '\"'
+//							&& skelEntry.getValue().charAt(endPointerIdx + 1) == '\"') {
+//						textUnitList.remove(pointedUnitInfo);
+//					} else {
+						pointedUnitInfo.setOffset(pointedUnitInfo.getOffset()
+								+ startPointerIdx);
+						pointedUnitInfo.setTuId(skelEntry.getKey()/*
+																 * + "-" +
+																 * (idCounter++)
+																 */);
+//					}
 				}
 				String valuePointedFromSkeleton = findSkeletonReplaceValue(
 						pointedId, keyToDelete);
+				if(tuInfoList != null && !tuInfoList.isEmpty()){
+					int pointerStringLength = endPointerIdx - startPointerIdx +1;
+					for(TextUnitInfo tu: tuInfoList){
+						tu.setOffset(tu.getOffset() - pointerStringLength + valuePointedFromSkeleton.length());
+					}
+				}
+				
 				String newValue = skelEntry.getValue().substring(0,
 						startPointerIdx)
 						+ valuePointedFromSkeleton
@@ -314,20 +333,27 @@ public class NifSkeletonWriterFilter extends AbstractNifWriterFilter {
 	 */
 	private void buildNIFFile() {
 
+		try{
 		initModel();
 
 		StringBuilder context1 = new StringBuilder();
-		TextUnitInfo tuinfo = null;
 		for (Entry<String, String> skelEntry : skeletonMap.entrySet()) {
-			tuinfo = getTextUnitInfo(skelEntry.getKey());
-			if (tuinfo != null) {
-				tuinfo.setOffset(tuinfo.getOffset() + context1.length());
+			List<TextUnitInfo> tuInfoList =  getTextUnitInfoListForSkel(skelEntry.getKey());
+			
+			for(TextUnitInfo tuInfo: tuInfoList){
+				tuInfo.setOffset(tuInfo.getOffset() + context1.length());
 			}
+//			tuinfo = getTextUnitInfo(skelEntry.getKey());
+//			if (tuinfo != null) {
+//				tuinfo.setOffset(tuinfo.getOffset() + context1.length());
+//			}
 			context1.append(skelEntry.getValue());
 		}
 		createContextResource(uriPrefix + CONTEXT1_URI_DOC, context1.toString());
 
 		StringBuilder context2 = new StringBuilder();
+//		Collections.sort(textUnitList, new TextUnitInfoIdComparator());
+		Collections.sort(textUnitList, new TextUnitInfoComparator());
 		for (TextUnitInfo currTextInfo : textUnitList) {
 			if (context2.length() > 0) {
 				context2.append(" ");
@@ -347,6 +373,21 @@ public class NifSkeletonWriterFilter extends AbstractNifWriterFilter {
 		}
 
 		model.write(new OutputStreamWriter(System.out), "TTL");
+		} catch (Exception e){
+			e.printStackTrace();
+		}
+	}
+
+	private List<TextUnitInfo> getTextUnitInfoListForSkel(String key) {
+		
+		List<TextUnitInfo> tuInfoList = new ArrayList<TextUnitInfo>();
+		for(TextUnitInfo tuInfo: textUnitList){
+			if(tuInfo.getTuId().equals(key)){
+				tuInfoList.add(tuInfo);
+			}
+		}
+		Collections.sort(tuInfoList, new TextUnitInfoComparator());
+		return tuInfoList;
 	}
 
 	/**
@@ -668,4 +709,49 @@ class TextUnitInfo {
 		return tuId.hashCode();
 	}
 
+}
+
+
+//class TextUnitInfoIdComparator implements Comparator<TextUnitInfo>{
+//
+//	@Override
+//	public int compare(TextUnitInfo o1, TextUnitInfo o2) {
+//
+//		int idxO1 = o1.getTuId().indexOf("-");
+//		Integer o1Id = null;
+//		if(idxO1 != -1){
+//			o1Id = Integer.getInteger(o1.getTuId().substring(0, idxO1));
+//		} else {
+//			o1Id = Integer.getInteger(o1.getTuId());
+//		}
+//		int idxO2 = o2.getTuId().indexOf("-");
+//		Integer o2Id = null;
+//		if(idxO2 != -1){
+//			o2Id = Integer.getInteger(o2.getTuId().substring(0, idxO2));
+//		} else {
+//			o2Id = Integer.getInteger(o2.getTuId());
+//		}
+//		if(o1Id.compareTo(o2Id) == 0){
+//			return o1.getTuId().compareTo(o2.getTuId());
+//		} else {
+//			return o1Id.compareTo(o2Id);
+//		}
+//	}
+//	
+//}
+
+class TextUnitInfoComparator implements Comparator<TextUnitInfo>{
+
+	@Override
+	public int compare(TextUnitInfo o1, TextUnitInfo o2) {
+		
+		int retValue = 0;
+		if(o1.getOffset() < o2.getOffset()){
+			retValue = -1; 
+		} else if(o1.getOffset() > o2.getOffset()){
+			retValue = 1;
+		}
+		return retValue;
+	}
+	
 }
