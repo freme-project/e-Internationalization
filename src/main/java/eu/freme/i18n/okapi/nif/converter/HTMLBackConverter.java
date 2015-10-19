@@ -146,10 +146,6 @@ public class HTMLBackConverter {
 						}
 
 					} else {
-						System.out.println("*******************************************");
-						System.out.println("Skeleton length: " + skeletonContext.length() );
-						System.out.println("last index: " + skeletonLastIdx);
-						System.out.println("second Index" + tuRes.getWasConvFromStartIdx());
 						originalFileString
 								.append(skeletonContext.substring(
 										skeletonLastIdx,
@@ -171,7 +167,6 @@ public class HTMLBackConverter {
 				originalFileString.append(skeletonContext
 						.substring(skeletonLastIdx));
 			}
-			System.out.println(originalFileString.toString());
 		}
 		return originalFileString.toString();
 	}

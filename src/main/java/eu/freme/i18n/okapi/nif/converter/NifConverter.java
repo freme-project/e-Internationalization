@@ -357,36 +357,36 @@ public class NifConverter {
 		return convert2NifWithMarkers(rawDocument, mimeType, (LocaleId) null, uriPrefix);
 	}
 
-	public static void main(String[] args) {
-
-		try {
-			InputStream inStream = new FileInputStream(new File(
-					"C:\\Users\\Martab\\test1.xlf"));
-			// InputStream inStream = new FileInputStream(new File(
-			// "C:\\Users\\Martab\\test12.html"));
-			NifConverter converter = new NifConverter();
-			InputStream nifFileStream = converter.convert2Nif(inStream,
-					MimeTypeMapper.XLIFF_MIME_TYPE, "http://freme-project.eu/");
-			BufferedReader bufferedReader = new BufferedReader(
-					new InputStreamReader(nifFileStream, "UTF-8"));
-			String line = bufferedReader.readLine();
-			while (line != null) {
-				System.out.println(line);
-				line = bufferedReader.readLine();
-			}
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ConversionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
+//	public static void main(String[] args) {
+//
+//		try {
+//			InputStream inStream = new FileInputStream(new File(
+//					"C:\\Users\\Martab\\test1.xlf"));
+//			// InputStream inStream = new FileInputStream(new File(
+//			// "C:\\Users\\Martab\\test12.html"));
+//			NifConverter converter = new NifConverter();
+//			InputStream nifFileStream = converter.convert2Nif(inStream,
+//					MimeTypeMapper.XLIFF_MIME_TYPE, "http://freme-project.eu/");
+//			BufferedReader bufferedReader = new BufferedReader(
+//					new InputStreamReader(nifFileStream, "UTF-8"));
+//			String line = bufferedReader.readLine();
+//			while (line != null) {
+//				System.out.println(line);
+//				line = bufferedReader.readLine();
+//			}
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (UnsupportedEncodingException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (ConversionException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//	}
 
 }

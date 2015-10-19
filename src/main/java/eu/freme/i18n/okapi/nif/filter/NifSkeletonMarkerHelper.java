@@ -77,7 +77,6 @@ public class NifSkeletonMarkerHelper {
 				 */
 				index = TextFragment.toIndex(codedText.charAt(++i));
 				code = codes.get(index);
-				System.out.println(code.toString());
 				String skeletonString = code.toString();
 				if (tmp.length() > 0) {
 					TextUnitInfo tuInfo = new TextUnitInfo();
@@ -110,7 +109,6 @@ public class NifSkeletonMarkerHelper {
 				 */
 				index = TextFragment.toIndex(codedText.charAt(++i));
 				code = codes.get(index);
-				System.out.println(code.toString());
 				if (tmp.length() > 0) {
 					TextUnitInfo tuInfo = new TextUnitInfo();
 					tuInfo.setOffset(0);
@@ -134,7 +132,6 @@ public class NifSkeletonMarkerHelper {
 				 */
 				index = TextFragment.toIndex(codedText.charAt(++i));
 				code = codes.get(index);
-				System.out.println(code.toString());
 				skeletonString = code.toString();
 				if (tmp.length() > 0) {
 					TextUnitInfo tuInfo = new TextUnitInfo();

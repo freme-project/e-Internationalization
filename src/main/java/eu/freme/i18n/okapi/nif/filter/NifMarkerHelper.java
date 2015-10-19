@@ -202,10 +202,10 @@ public class NifMarkerHelper {
 						normalizedString, annotatedTextStartIdx
 								+ totPartsLength, locale, isTarget,
 						currentCode.getGenericAnnotations());
-				for (GenericAnnotation annot : currentCode
-						.getGenericAnnotations()) {
-					System.out.println(annot.toString());
-				}
+//				for (GenericAnnotation annot : currentCode
+//						.getGenericAnnotations()) {
+//					System.out.println(annot.toString());
+//				}
 			}
 		}
 		currentCode = null;

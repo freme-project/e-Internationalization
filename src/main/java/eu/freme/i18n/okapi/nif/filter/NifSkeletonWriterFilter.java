@@ -372,7 +372,6 @@ public class NifSkeletonWriterFilter extends AbstractNifWriterFilter {
 					currTextInfo);
 		}
 
-		model.write(new OutputStreamWriter(System.out), "TTL");
 		} catch (Exception e){
 			e.printStackTrace();
 		}
