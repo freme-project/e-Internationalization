@@ -244,7 +244,7 @@ public class EInternationalizationAPITest {
 		FileWriter writer = new FileWriter(skeletonFile);
 		String line;
 		while ((line = br.readLine()) != null) {
-			System.out.println(line);
+			//System.out.println(line);
 			writer.write(line);
 		}
 		br.close();
@@ -259,7 +259,7 @@ public class EInternationalizationAPITest {
 				turtle);
 		br = new BufferedReader(reader);
 		while ((line = br.readLine()) != null) {
-			System.out.println(line);
+			//System.out.println(line);
 		}
 		br.close();
 		skeletonFile.delete();
