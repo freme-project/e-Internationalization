@@ -8,22 +8,22 @@
                         http://www.apache.org/licenses/
 
 applies to:
-	- Apache Jena - apache-jena-libs:2.13.0, Copyright 2011–2015 The Apache Software Foundation
-	- Apache Maven Plugins - maven-clean-plugin:2.5, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- Apache Maven Plugins - maven-compiler-plugin:3.1, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- Apache Maven Plugins - maven-deploy-plugin:2.8.2, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- Apache Maven Plugins - maven-install-plugin:2.5.2, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- Apache Maven Plugins - maven-jar-plugin:2.5, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- Apache Maven Plugins - maven-resources-plugin:2.6, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- Apache Maven Plugins - maven-site-plugin:3.4, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- Apache Maven Plugins - maven-surefire-plugin:2.17, Copyright 2002–2015 The Apache Software Foundation. All rights reserved.
-	- License Plugin - license-maven-plugin:2.3, Copyright 2008 Mycila (mathieu.carbou@gmail.com)
+	- Apache Jena - apache-jena-libs:2.13.0, Copyright 2011-2015 The Apache Software Foundation
+	- Apache Maven Plugins - maven-clean-plugin:2.5, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- Apache Maven Plugins - maven-compiler-plugin:3.1, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- Apache Maven Plugins - maven-deploy-plugin:2.8.2, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- Apache Maven Plugins - maven-install-plugin:2.5.2, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- Apache Maven Plugins - maven-jar-plugin:2.5, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- Apache Maven Plugins - maven-resources-plugin:2.6, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- Apache Maven Plugins - maven-site-plugin:3.4, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- Apache Maven Plugins - maven-surefire-plugin:2.17, Copyright 2002-2015 The Apache Software Foundation. All rights reserved.
+	- License Maven Plugin - license-maven-plugin:2.3, Copyright 2008 Mycila (mathieu.carbou@gmail.com)
+	- SnakeYaml - snakeyaml:1.15
 	- Spring Boot - spring-boot-starter-test:1.2.5.RELEASE
 	- Spring Boot - spring-boot-starter-web:1.2.5.RELEASE
-	- Stax-Api - stax-api:1.0
-	- Stax-Api - stax2-api:3.1.1
-	- Woodstox - woodstox-core-lgpl:4.1.4
-	- snakeYAML - snakeyaml:1.15
+	- Woostox - woodstox-core-lgpl:4.1.4
+	- stax-api:1.0
+	- stax2-api:3.1.1
 
 -----------------------------------------------------------------------------
 
@@ -469,11 +469,15 @@ applies to:
 
 applies to:
 	- Okapi Filters - okapi-filter-abstractmarkup:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-archive:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-doxygen:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-dtd:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-html:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-idml:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-its:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-json:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-mif:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-mosestext:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-openoffice:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-openxml:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-pensieve:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
@@ -482,15 +486,22 @@ applies to:
 	- Okapi Filters - okapi-filter-po:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-properties:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-railsyaml:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-rainbowkit:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-rtf:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-table:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-transifex:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-transtable:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-ts:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-ttx:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-txml:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-versifiedtxt:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-vignette:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-wiki:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-filter-xini:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-xliff:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-filter-xmlstream:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-lib-extra:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
+	- Okapi Filters - okapi-lib-preprocessing:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Filters - okapi-step-common:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 	- Okapi Framework - okapi-core:0.27, Copyright 2015 ENLASO Corporation. All Rights Reserved.
 
