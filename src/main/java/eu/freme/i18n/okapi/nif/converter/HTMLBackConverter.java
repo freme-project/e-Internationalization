@@ -266,6 +266,8 @@ public class HTMLBackConverter {
 				ItsRdfConstants.TA_IDENT_REF);
 		Property classRef = model.createProperty(RDFConstants.itsrdfPrefix,
 				ItsRdfConstants.TA_CLASS_REF);
+		Property taConfidence = model.createProperty(RDFConstants.itsrdfPrefix,
+				ItsRdfConstants.TA_CONFIDENCE);
 		StmtIterator identRefStmts = model.listStatements(
 				resource.getResource(), identRef, (RDFNode) null);
 		while (identRefStmts.hasNext()) {
@@ -276,6 +278,12 @@ public class HTMLBackConverter {
 		while (classRefStmts.hasNext()) {
 			entityStmts.add(classRefStmts.next());
 		}
+		StmtIterator confidenceRefStmts = model.listStatements(
+				resource.getResource(), taConfidence, (RDFNode) null);
+		while (confidenceRefStmts.hasNext()) {
+			entityStmts.add(confidenceRefStmts.next());
+		}
+
 
 		return entityStmts;
 	}
