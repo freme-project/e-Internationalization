@@ -456,7 +456,7 @@ public class NifSkeletonWriterFilter extends AbstractNifWriterFilter {
 						+ (tuInfo.getOffset() + tuInfo.getText().length())));
 
 		Property refContext = model.createProperty(RDFConstants.nifPrefix,
-				"ReferenceContext");
+				"referenceContext");
 		tuResource.addProperty(refContext,
 				model.createResource(realContextRefUri));
 

@@ -394,14 +394,14 @@ public class NifWriterFilter extends AbstractNifWriterFilter {
 				"anchorOf");
 		ResIterator iterator = model.listResourcesWithProperty(anchorOf);
 		Property refContext = model.createProperty(RDFConstants.nifPrefix,
-				"ReferenceContext");
+				"referenceContext");
 		while (iterator.hasNext()) {
 			Resource currRes = iterator.next();
 			if (uriPrefixMacthes(contextURI, currRes.getURI())) {
 				if (!currRes.getURI().equals(contextURI)) {
 					Property typeProp = model
 							.createProperty(RDFConstants.typePrefix);
-					currRes.addProperty(refContext, contextURI);
+					currRes.addProperty(refContext, model.createResource(contextURI));
 					currRes.addProperty(
 							typeProp,
 							model.createResource(RDFConstants.nifPrefix
