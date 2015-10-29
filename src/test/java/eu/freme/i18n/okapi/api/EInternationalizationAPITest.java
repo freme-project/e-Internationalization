@@ -277,5 +277,8 @@ public class EInternationalizationAPITest {
 
 		testRoundTripping("/roundtripping/vt-input-html.txt",
 				"/roundtripping/vt-input-turtle.txt");
+		
+//		testRoundTripping("/roundtripping/long-html.html",
+//				"/roundtripping/long-turtle.turtle");
 	}
 }
