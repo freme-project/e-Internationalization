@@ -15,6 +15,7 @@
  */
 package eu.freme.i18n.okapi.nif.filter;
 
+import java.text.Normalizer;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +36,8 @@ public class NifSkeletonMarkerHelper {
 
 	/** The current skeleton string. */
 	private String skeleton;
+	
+	private int textUnitSet;
 
 	/**
 	 * Manages codes contained in the current text fragment. Skeleton parts are
@@ -58,6 +61,7 @@ public class NifSkeletonMarkerHelper {
 
 		codedText = content.getCodedText();
 		codes = content.getCodes();
+		textUnitSet ++;
 		StringBuilder tmp = new StringBuilder();
 		boolean startPointerFound = false;
 		LinkedList<String> skeletonChunks = createSkeletonChunks(skeletonParam);
@@ -80,7 +84,8 @@ public class NifSkeletonMarkerHelper {
 				String skeletonString = code.toString();
 				if (tmp.length() > 0) {
 					TextUnitInfo tuInfo = new TextUnitInfo();
-					tuInfo.setText(tmp.toString());
+					tuInfo.setTextUnitSet(textUnitSet);
+					tuInfo.setText(getText(tmp.toString()));
 					tuInfo.setTuId(textUnitId + "-" + (++idCounter));
 					manageTextUnitAndSkeleton(tuInfo, textInfoList,
 							skeletonMap, skeletonChunks);
@@ -112,8 +117,9 @@ public class NifSkeletonMarkerHelper {
 				if (tmp.length() > 0) {
 					TextUnitInfo tuInfo = new TextUnitInfo();
 					tuInfo.setOffset(0);
-					tuInfo.setText(tmp.toString());
+					tuInfo.setText(getText(tmp.toString()));
 					tuInfo.setTuId(textUnitId + "-" + (++idCounter));
+					tuInfo.setTextUnitSet(textUnitSet);
 					skeletonMap.put(tuInfo.getTuId(), tuInfo.getText());
 					textInfoList.add(tuInfo);
 				}
@@ -135,8 +141,9 @@ public class NifSkeletonMarkerHelper {
 				skeletonString = code.toString();
 				if (tmp.length() > 0) {
 					TextUnitInfo tuInfo = new TextUnitInfo();
-					tuInfo.setText(tmp.toString());
+					tuInfo.setText(getText(tmp.toString()));
 					tuInfo.setTuId(textUnitId + "-" + (++idCounter));
+					tuInfo.setTextUnitSet(textUnitSet);
 					manageTextUnitAndSkeleton(tuInfo, textInfoList,
 							skeletonMap, skeletonChunks);
 				} else {
@@ -170,8 +177,9 @@ public class NifSkeletonMarkerHelper {
 					startPointerFound = true;
 					if (tmp.length() > 0) {
 						TextUnitInfo tuInfo = new TextUnitInfo();
-						tuInfo.setText(tmp.toString());
+						tuInfo.setText(getText(tmp.toString()));
 						tuInfo.setTuId(textUnitId + "-" + (++idCounter));
+						tuInfo.setTextUnitSet(textUnitSet);
 						manageTextUnitAndSkeleton(tuInfo, textInfoList,
 								skeletonMap, skeletonChunks);
 						tmp = new StringBuilder();
@@ -198,31 +206,59 @@ public class NifSkeletonMarkerHelper {
 									.contains(SkeletonConstants.REPLACE_STRING)) {
 						skeleton = skeleton.replace(
 								SkeletonConstants.REPLACE_STRING,
-								tmp.toString());
+								getText(tmp.toString()));
 						skeletonMap.put(textUnitId + "-" + (++idCounter),
 								skeleton);
 						skeleton = skeletonChunks.poll();
 					} else {
 						skeletonMap.put(textUnitId + "-" + (++idCounter),
-								tmp.toString());
+								getText(tmp.toString()));
 					}
 					tmp = new StringBuilder();
 				}
 				break;
-			default:
+			case '>':
 				tmp.append(codedText.charAt(i));
+				break;
+			case '\r': // Not a line-break in the XML context, but a literal
+				tmp.append("&#13;");
+				break;
+			case '<':
+				tmp.append("&lt;");
+				break;
+			case '&':
+				tmp.append("&amp;");
+				break;
+			case '"':
+				break;
+			case '\'':
+				tmp.append(codedText.charAt(i));
+				break;	
+			default:
+				if (codedText.charAt(i) > 127) { // Extended chars
+					if (Character.isHighSurrogate(codedText.charAt(i))) {
+						int cp = codedText.codePointAt(i++);
+						String buf = new String(Character.toChars(cp));
+							tmp.append(buf);
+					} else {
+							tmp.append(codedText.charAt(i));
+					}
+				} else { // ASCII chars
+				tmp.append(codedText.charAt(i));
+				}
 				break;
 			}
 		}
 		// manage the remaining text and skeleton
 		if (tmp.length() > 0) {
 			TextUnitInfo tuInfo = new TextUnitInfo();
-			tuInfo.setText(tmp.toString());
+			tuInfo.setText(getText(tmp.toString()));
 			if (idCounter == 0) {
 				tuInfo.setTuId(textUnitId);
 			} else {
 				tuInfo.setTuId(textUnitId + "-" + (++idCounter));
 			}
+			tuInfo.setTextUnitSet(textUnitSet);
 			manageTextUnitAndSkeleton(tuInfo, textInfoList, skeletonMap,
 					skeletonChunks);
 		}
@@ -300,5 +336,12 @@ public class NifSkeletonMarkerHelper {
 			skeletonChunks.add(skeletonParam);
 		}
 		return skeletonChunks;
+	}
+	
+	private String getText(String text){
+		if (!Normalizer.isNormalized(text, Normalizer.Form.NFC)) {
+			text = Normalizer.normalize(text, Normalizer.Form.NFC);
+		}
+		return text;
 	}
 }

@@ -113,6 +113,9 @@ public class NifMarkerHelper {
 //				index = TextFragment.toIndex(codedText.charAt(++i));
 //				code = codes.get(index);
 				// System.out.println(code.toString());
+				index = TextFragment.toIndex(codedText.charAt(++i));
+				markerOpened = false;
+				manageInlineAnnotation(isTarget, locale);
 				break;
 			case '>':
 				tmp.append(codedText.charAt(i));

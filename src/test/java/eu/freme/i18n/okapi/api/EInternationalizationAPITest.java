@@ -185,7 +185,7 @@ public class EInternationalizationAPITest {
 		// UnsupportedMimeTypeException);
 	}
 
-	@Test
+//	@Test
 	public void testRoundtripping() throws IOException {
 
 		try {
@@ -198,7 +198,8 @@ public class EInternationalizationAPITest {
 			
 			//STEP 2: save the skeleton file somewhere on the machine
 			BufferedReader br = new BufferedReader(skeletonReader);
-			File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
+//			File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
+			File skeletonFile = new File(System.getProperty("user.home"), "skeletonApiTest.ttl");
 			FileWriter writer = new FileWriter(skeletonFile);
 			String line;
 			while ((line = br.readLine()) != null) {
@@ -219,7 +220,7 @@ public class EInternationalizationAPITest {
 				System.out.println(line);
 			}
 			br.close();
-			skeletonFile.delete();
+//			skeletonFile.delete();
 		} catch (ConversionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -240,11 +241,12 @@ public class EInternationalizationAPITest {
 
 		// STEP 2: save the skeleton file somewhere on the machine
 		BufferedReader br = new BufferedReader(skeletonReader);
-		File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
+//		File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
+		File skeletonFile = new File(System.getProperty("user.home"), "skeletonApiTest.ttl");
 		FileWriter writer = new FileWriter(skeletonFile);
 		String line;
 		while ((line = br.readLine()) != null) {
-			//System.out.println(line);
+//			System.out.println(line);
 			writer.write(line);
 		}
 		br.close();
@@ -259,7 +261,7 @@ public class EInternationalizationAPITest {
 				turtle);
 		br = new BufferedReader(reader);
 		while ((line = br.readLine()) != null) {
-			//System.out.println(line);
+			System.out.println(line);
 		}
 		br.close();
 		skeletonFile.delete();
@@ -272,13 +274,39 @@ public class EInternationalizationAPITest {
 				"/roundtripping/input-turtle.txt");
 	}
 	
+//	@Test
+	public void testConvertToTurtle(){
+		
+		InputStream fileToConvert = getClass().getResourceAsStream("/roundtripping/short-html.html");
+		try {
+			Reader nifReader = eInternationalizationAPI.convertToTurtle(fileToConvert, EInternationalizationAPI.MIME_TYPE_HTML);
+			File nifFile = new File(System.getProperty("user.home"), "convertedHtml.ttl");
+			FileWriter writer = new FileWriter(nifFile);
+			BufferedReader br = new BufferedReader(nifReader);
+			String line;
+			while ((line = br.readLine()) != null) {
+				System.out.println(line);
+				writer.write(line);
+			}
+			br.close();
+			writer.close();
+		} catch (ConversionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		};
+	}
+	
 	@Test
 	public void testLongRoundtripping() throws IOException, ConversionException {
 
-		testRoundTripping("/roundtripping/vt-input-html.txt",
-				"/roundtripping/vt-input-turtle.txt");
+//		testRoundTripping("/roundtripping/vt-input-html.txt",
+//				"/roundtripping/vt-input-turtle.txt");
 		
-//		testRoundTripping("/roundtripping/long-html.html",
-//				"/roundtripping/long-turtle.turtle");
+		testRoundTripping("/roundtripping/long-html.html",
+				"/roundtripping/long-html-enriched.ttl");
+		
 	}
 }

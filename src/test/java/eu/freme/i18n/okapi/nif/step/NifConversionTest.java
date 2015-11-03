@@ -3,6 +3,10 @@ package eu.freme.i18n.okapi.nif.step;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 
@@ -18,6 +22,9 @@ import net.sf.okapi.steps.common.RawDocumentToFilterEventsStep;
 
 import org.junit.Test;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+
 import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
 
 public class NifConversionTest {
@@ -30,12 +37,14 @@ public class NifConversionTest {
 	public void testDoubleNifFiles() throws URISyntaxException,
 			MalformedURLException, FileNotFoundException {
 
-		File baseDir = new File(this.getClass().getResource("/nifConversion")
+//		File baseDir = new File(this.getClass().getResource("/nifConversion")
+//				.toURI());
+		File baseDir = new File(this.getClass().getResource("/roundtripping")
 				.toURI());
 		String pathBase = baseDir.getAbsolutePath();
-		String fileName = "stupid-test";
+		String fileName = "html-in";
 		String fileExt = ".html";
-		String src1Path = pathBase + "/ITS/HTML//";
+		String src1Path = pathBase /*+ "/src1/"*/;
 		File outFile = new File(pathBase, fileName+fileExt + ".ttl");
 		File skelOutFile = new File(pathBase, fileName+"-skeleton"+fileExt + ".ttl");
 		RawDocument document = new RawDocument(new FileInputStream(new File(src1Path, fileName+fileExt )), "UTF-8", ENUS);
@@ -81,5 +90,26 @@ public class NifConversionTest {
 								RDFSerialization.TURTLE.toRDFLang()))
 		)
 				.execute();
+	}
+	
+//	@Test
+	public void testMergeModels(){
+	
+		InputStream skeleton = getClass().getResourceAsStream("/roundtripping/long-html-skeleton.html.ttl");
+		InputStream enriched = getClass().getResourceAsStream("/roundtripping/long-html-enriched.ttl");
+		Model skeletonModel = ModelFactory.createDefaultModel();
+		InputStreamReader reader = new InputStreamReader(skeleton);
+		skeletonModel.read(reader, null, "TTL");
+		Model enrichedModel = ModelFactory.createDefaultModel();
+		reader = new InputStreamReader(enriched);
+		enrichedModel.read(reader, null, "TTL");
+		skeletonModel.add(enrichedModel);
+		File mergedFile = new File(System.getProperty("user.home"),"merged-long-html.ttl");
+		try {
+			skeletonModel.write(new OutputStreamWriter(new FileOutputStream(mergedFile)), "TTL");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

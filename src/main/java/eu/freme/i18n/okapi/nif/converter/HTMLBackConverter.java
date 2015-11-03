@@ -19,11 +19,16 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -33,6 +38,7 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.ibm.icu.impl.UBiDiProps;
 
 import eu.freme.i18n.okapi.nif.filter.RDFConstants;
 import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
@@ -189,8 +195,10 @@ public class HTMLBackConverter {
 		TextUnitResource currRes = null;
 		while (index < tuResList.size() && !found) {
 			currRes = tuResList.get(index);
-			if (currRes.getStartIdx() <= tuResource.getStartIdx()
-					&& currRes.getEndIdx() >= tuResource.getEndIdx()) {
+			if (currRes.getStartIdx() <= tuResource
+					.getStartIdx()
+					&& currRes.getEndIdx() >= tuResource.getEndIdx()
+					&& currRes.getText().contains(tuResource.getText())) {
 				found = true;
 			}
 			index++;
@@ -204,15 +212,19 @@ public class HTMLBackConverter {
 			}
 			annotatedText.append(">");
 			StringBuilder newText = new StringBuilder();
-			newText.append(currRes.getText().substring(0,
-					tuResource.getStartIdx() - currRes.getStartIdx() + currRes.getAdditionalOffset()));
+			newText.append(currRes.getText().substring(
+					0,
+					tuResource.getStartIdx() - currRes.getStartIdx()
+							+ currRes.getAdditionalOffset()));
 			newText.append(annotatedText);
 			newText.append(tuResource.getText());
 			newText.append("</span>");
 			newText.append(currRes.getText().substring(
-					tuResource.getEndIdx() - currRes.getStartIdx() + currRes.getAdditionalOffset()));
+					tuResource.getEndIdx() - currRes.getStartIdx()
+							+ currRes.getAdditionalOffset()));
 			currRes.setText(newText.toString());
-			currRes.setAdditionalOffset(currRes.getAdditionalOffset() + annotatedText.length() + "</span>".length());
+			currRes.setAdditionalOffset(currRes.getAdditionalOffset()
+					+ annotatedText.length() + "</span>".length());
 		}
 
 	}
@@ -284,7 +296,6 @@ public class HTMLBackConverter {
 			entityStmts.add(confidenceRefStmts.next());
 		}
 
-
 		return entityStmts;
 	}
 
@@ -302,10 +313,14 @@ public class HTMLBackConverter {
 				(RDFNode) null);
 		// ResIterator tuResIt = model.listResourcesWithProperty(anchorOfProp);
 		Statement anchorStmt = null;
+		TextUnitResource unitRes = null;
 		while (anchorStmts.hasNext()) {
 			anchorStmt = anchorStmts.next();
-			tuResources.add(new TextUnitResource(anchorStmt.getSubject(),
-					anchorStmt.getObject().asLiteral().getString()));
+			unitRes = new TextUnitResource(anchorStmt.getSubject(),
+					anchorStmt.getObject().asLiteral().getString());
+			if(!tuResources.contains(unitRes)){
+				tuResources.add(unitRes);
+			}
 		}
 		Collections.sort(tuResources, new TextUnitResComparator());
 		return tuResources;
@@ -363,12 +378,17 @@ public class HTMLBackConverter {
 		boolean wasConvertedFromExists = false;
 		Property wasConvertedFromProp = model
 				.createProperty(RDFConstants.WAS_CONVERTED_FROM_PROP);
-		NodeIterator wasConvNodesIt = model.listObjectsOfProperty(
-				resource.getResource(), wasConvertedFromProp);
-		if (wasConvNodesIt != null && wasConvNodesIt.hasNext()) {
+		// NodeIterator wasConvNodesIt = model.listObjectsOfProperty(
+		// resource.getResource(), wasConvertedFromProp);
+		StmtIterator wasConvertedStmts = model.listStatements(
+				resource.getResource(), wasConvertedFromProp, (RDFNode) null);
+		if (wasConvertedStmts != null && wasConvertedStmts.hasNext()) {
+			Statement wasConvStmt = wasConvertedStmts.next();
 			wasConvertedFromExists = true;
-			String wasConvertedURI = wasConvNodesIt.next().asResource()
+			String wasConvertedURI = wasConvStmt.getObject().asResource()
 					.getURI();
+			// String wasConvertedURI = wasConvNodesIt.next().asResource()
+			// .getURI();
 			String[] wasConvOffset = getOffsetFromURI(wasConvertedURI);
 			resource.setWasConvFromStartIdx(Integer.valueOf(wasConvOffset[0]));
 			resource.setWasConvFromEndIdx(Integer.valueOf(wasConvOffset[1]));
@@ -425,19 +445,6 @@ public class HTMLBackConverter {
 		return itsAnnotation.toString();
 	}
 
-	public static void main(String[] args) throws FileNotFoundException {
-
-		HTMLBackConverter backConverter = new HTMLBackConverter();
-		FileInputStream skeletonFile = new FileInputStream(
-				new File(
-						"C:\\Users\\Martab\\Projects\\FREME\\e-Internationalization\\e-Internationalization\\target\\test-classes\\nifConversion",
-						"stupid-test-skeleton.html.ttl"));
-		FileInputStream enrichedFile = new FileInputStream(
-				new File(
-						"C:\\Users\\Martab\\Projects\\FREME\\e-Internationalization\\e-Internationalization\\target\\test-classes\\nifConversion",
-						"stupid-test-enriched.html.ttl"));
-		backConverter.convertBack(skeletonFile, enrichedFile, "TTL", "TTL");
-	}
 
 }
 
@@ -463,7 +470,7 @@ class TextUnitResource {
 
 	/** The end index in the skeleton context. */
 	private int wasConvFromEndIdx;
-	
+
 	private int additionalOffset;
 
 	/**
@@ -574,7 +581,6 @@ class TextUnitResource {
 		this.wasConvFromEndIdx = wasConvFromEndIdx;
 	}
 
-	
 	public int getAdditionalOffset() {
 		return additionalOffset;
 	}
@@ -594,6 +600,25 @@ class TextUnitResource {
 		return text + "-" + startIdx + "," + endIdx;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+
+		boolean retValue = false;
+		if (obj instanceof TextUnitResource) {
+			TextUnitResource unit = (TextUnitResource) obj;
+			retValue = text.equals(unit.getText())
+					&& startIdx == unit.getStartIdx()
+					&& endIdx == unit.getEndIdx();
+		} else {
+			retValue = super.equals(obj);
+		}
+		return retValue;
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 * (text.hashCode() + startIdx + endIdx);
+	}
 }
 
 /**
