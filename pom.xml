@@ -21,7 +21,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>eu.freme</groupId>
 	<artifactId>e-internationalization</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.2</version>
 	<name>Okapi NIF converter</name>
 	<inceptionYear>2015</inceptionYear>
 	<properties>
@@ -341,6 +341,22 @@ Istituto Superiore Mario Boella, Tilde, Vistatec, WRIPL
 			</plugin>
 
 		</plugins>
+			<plugin>
+			    <groupId>org.apache.maven.plugins</groupId>
+			    <artifactId>maven-javadoc-plugin</artifactId>
+			    <version>2.9</version>
+			    <executions>
+				<execution>
+				    <id>attach-javadocs</id>
+				    <goals>
+					<goal>jar</goal>
+				    </goals>
+				    <configuration>
+					<additionalparam>-Xdoclint:none</additionalparam>
+				    </configuration>
+				</execution>
+			    </executions>
+			</plugin>
 	</build>
 
 	<scm>
