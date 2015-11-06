@@ -37,14 +37,12 @@ public class NifConversionTest {
 	public void testDoubleNifFiles() throws URISyntaxException,
 			MalformedURLException, FileNotFoundException {
 
-//		File baseDir = new File(this.getClass().getResource("/nifConversion")
-//				.toURI());
-		File baseDir = new File(this.getClass().getResource("/roundtripping")
+		File baseDir = new File(this.getClass().getResource("/nifConversion")
 				.toURI());
 		String pathBase = baseDir.getAbsolutePath();
-		String fileName = "html-in";
+		String fileName = "test12";
 		String fileExt = ".html";
-		String src1Path = pathBase /*+ "/src1/"*/;
+		String src1Path = pathBase + "/src1/";
 		File outFile = new File(pathBase, fileName+fileExt + ".ttl");
 		File skelOutFile = new File(pathBase, fileName+"-skeleton"+fileExt + ".ttl");
 		RawDocument document = new RawDocument(new FileInputStream(new File(src1Path, fileName+fileExt )), "UTF-8", ENUS);

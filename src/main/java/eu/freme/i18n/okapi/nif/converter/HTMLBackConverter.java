@@ -16,19 +16,15 @@
 package eu.freme.i18n.okapi.nif.converter;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -38,7 +34,6 @@ import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.ibm.icu.impl.UBiDiProps;
 
 import eu.freme.i18n.okapi.nif.filter.RDFConstants;
 import eu.freme.i18n.okapi.nif.filter.RDFConstants.RDFSerialization;
@@ -93,7 +88,10 @@ public class HTMLBackConverter {
 			final String enrichedFormat) {
 
 		Model skeletonModel = ModelFactory.createDefaultModel();
-		skeletonModel.read(skeletonFile, null, skeletonFormat);
+		CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+		decoder.onMalformedInput(CodingErrorAction.IGNORE);
+		InputStreamReader reader = new InputStreamReader(skeletonFile, decoder);
+		skeletonModel.read(reader, null, skeletonFormat);
 		Model enrichedModel = ModelFactory.createDefaultModel();
 		enrichedModel.read(enrichedFile, null, enrichedFormat);
 		model = skeletonModel.union(enrichedModel);
@@ -195,8 +193,7 @@ public class HTMLBackConverter {
 		TextUnitResource currRes = null;
 		while (index < tuResList.size() && !found) {
 			currRes = tuResList.get(index);
-			if (currRes.getStartIdx() <= tuResource
-					.getStartIdx()
+			if (currRes.getStartIdx() <= tuResource.getStartIdx()
 					&& currRes.getEndIdx() >= tuResource.getEndIdx()
 					&& currRes.getText().contains(tuResource.getText())) {
 				found = true;
@@ -316,9 +313,9 @@ public class HTMLBackConverter {
 		TextUnitResource unitRes = null;
 		while (anchorStmts.hasNext()) {
 			anchorStmt = anchorStmts.next();
-			unitRes = new TextUnitResource(anchorStmt.getSubject(),
-					anchorStmt.getObject().asLiteral().getString());
-			if(!tuResources.contains(unitRes)){
+			unitRes = new TextUnitResource(anchorStmt.getSubject(), anchorStmt
+					.getObject().asLiteral().getString());
+			if (!tuResources.contains(unitRes)) {
 				tuResources.add(unitRes);
 			}
 		}
@@ -444,7 +441,6 @@ public class HTMLBackConverter {
 
 		return itsAnnotation.toString();
 	}
-
 
 }
 
