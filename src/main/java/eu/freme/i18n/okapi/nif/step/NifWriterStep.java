@@ -119,9 +119,13 @@ public class NifWriterStep extends BasePipelineStep {
 
 		case TEXT_UNIT:
 			ITextUnit tu = event.getTextUnit();
-			Event ev = new Event(EventType.TEXT_UNIT, tu.clone());
-			processTextUnit(tu);
-			return ev;
+			if (tu.getType() != null && tu.getType().startsWith("x-")) {
+				return event;
+			} else {
+				Event ev = new Event(EventType.TEXT_UNIT, tu.clone());
+				processTextUnit(tu);
+				return ev;
+			}
 		case END_DOCUMENT:
 			processEndDocument();
 			break;

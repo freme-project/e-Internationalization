@@ -20,7 +20,7 @@
 		<license.licenseName>apache_v2</license.licenseName>
 		<license.organizationName>Deutsches Forschungszentrum für Künstliche
 			Intelligenz</license.organizationName>
-		<okapi.version>0.27</okapi.version>
+		<okapi.version>0.29-SNAPSHOT</okapi.version>
 	</properties>
 
 	<parent>
@@ -182,11 +182,11 @@
 			<artifactId>okapi-filter-ttx</artifactId>
 			<version>${okapi.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-railsyaml</artifactId>
 			<version>${okapi.version}</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>net.sf.okapi.filters</groupId>
 			<artifactId>okapi-filter-xmlstream</artifactId>
