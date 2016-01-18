@@ -20,7 +20,7 @@
 		<license.licenseName>apache_v2</license.licenseName>
 		<license.organizationName>Deutsches Forschungszentrum für Künstliche
 			Intelligenz</license.organizationName>
-		<okapi.version>0.29-SNAPSHOT</okapi.version>
+		<okapi.version>0.30-SNAPSHOT</okapi.version>
 	</properties>
 
 	<parent>
