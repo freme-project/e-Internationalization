@@ -24,7 +24,10 @@ import java.nio.charset.CodingErrorAction;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -120,25 +123,17 @@ public class HTMLBackConverter {
 								.substring(skeletonLastIdx,
 										tuRes.getWasConvFromStartIdx());
 						if (parentNode.isEmpty()) {
-							originalFileString.append("<span ");
-							for (Statement entityStmt : enrichmentStmts) {
-								originalFileString
-										.append(getItsAnnotationString(entityStmt));
-								originalFileString.append(" ");
-							}
+							originalFileString.append("<span");
+							originalFileString
+									.append(buildAnnotsAttributesString(
+											enrichmentStmts, parentNode));
 							originalFileString.append(">");
 							originalFileString.append(tuRes.getText());
 							skeletonLastIdx = tuRes.getWasConvFromEndIdx();
 							originalFileString.append("</span>");
 						} else {
-							StringBuilder annotationAttributes = new StringBuilder();
-							for (Statement entityStmt : enrichmentStmts) {
-								String annotation = getItsAnnotationString(entityStmt);
-								if (!parentNode.contains(annotation)) {
-									annotationAttributes.append(" ");
-									annotationAttributes.append(annotation);
-								}
-							}
+							String annotationAttributes = buildAnnotsAttributesString(
+									enrichmentStmts, parentNode);
 							int closeTagIdx = parentNode.lastIndexOf(">");
 							originalFileString.append(parentNode.substring(0,
 									closeTagIdx));
@@ -203,10 +198,12 @@ public class HTMLBackConverter {
 		if (found) {
 			StringBuilder annotatedText = new StringBuilder();
 			annotatedText.append("<span");
-			for (Statement stmt : enrichmentStmts) {
-				annotatedText.append(" ");
-				annotatedText.append(getItsAnnotationString(stmt));
-			}
+			annotatedText.append(buildAnnotsAttributesString(enrichmentStmts,
+					null));
+			// for (Statement stmt : enrichmentStmts) {
+			// annotatedText.append(" ");
+			// annotatedText.append(getItsAnnotationString(stmt));
+			// }
 			annotatedText.append(">");
 			StringBuilder newText = new StringBuilder();
 			newText.append(currRes.getText().substring(
@@ -408,18 +405,122 @@ public class HTMLBackConverter {
 				.split(",");
 	}
 
+	// /**
+	// * Gets the ITS annotation string (ITS attribute name = ITS attribute
+	// value)
+	// * derived from the enrichment statement passed as parameter.
+	// *
+	// * @param enrichmentStmt
+	// * the enrichment statement.
+	// * @return the ITS annotation string.
+	// */
+	// private String getItsAnnotationString(Statement enrichmentStmt) {
+	// StringBuilder itsAnnotation = new StringBuilder();
+	// itsAnnotation.append("its-");
+	// String itsPropName = enrichmentStmt.getPredicate().getLocalName();
+	// for (int i = 0; i < itsPropName.length(); i++) {
+	// if (Character.isUpperCase(itsPropName.charAt(i))) {
+	// itsAnnotation.append("-");
+	// itsAnnotation.append(Character.toLowerCase(itsPropName
+	// .charAt(i)));
+	// } else {
+	// itsAnnotation.append(itsPropName.charAt(i));
+	// }
+	// }
+	// itsAnnotation.append("=\"");
+	// if (enrichmentStmt.getObject().isResource()) {
+	// itsAnnotation.append(enrichmentStmt.getObject().asResource()
+	// .getURI());
+	// } else {
+	// itsAnnotation.append(enrichmentStmt.getObject().asLiteral()
+	// .getString());
+	// }
+	// itsAnnotation.append("\"");
+	//
+	// return itsAnnotation.toString();
+	// }
+
 	/**
-	 * Gets the ITS annotation string (ITS attribute name = ITS attribute value)
-	 * derived from the enrichment statement passed as parameter.
+	 * Builds the ITS annotation strings (ITS attribute name = ITS attribute
+	 * value) derived from the list of enrichment statements passed as
+	 * parameter.
 	 * 
-	 * @param enrichmentStmt
-	 *            the enrichment statement.
-	 * @return the ITS annotation string.
+	 * @param stmts
+	 *            the list of enrichment statements
+	 * @param parentNode
+	 *            the parent node if it exists; <code>null</code> otherwise.
+	 * @return the string containing the attributes describing ITS annotations.
 	 */
-	private String getItsAnnotationString(Statement enrichmentStmt) {
+	private String buildAnnotsAttributesString(List<Statement> stmts,
+			String parentNode) {
+
+		StringBuilder attrString = new StringBuilder();
+		/*
+		 * Some times it happens that one property occurs more than once in a
+		 * list of enrichment statements. For example, FREME NER can return
+		 * results like this itsrdf:taClassRef
+		 * <http://dbpedia.org/ontology/Place> ,
+		 * <http://dbpedia.org/ontology/Settlement> ,
+		 * <http://nerd.eurecom.fr/ontology#Location> ,
+		 * <http://dbpedia.org/ontology/Location> ,
+		 * <http://dbpedia.org/ontology/City> ,
+		 * <http://dbpedia.org/ontology/PopulatedPlace> ;
+		 * 
+		 * In this case, we translate those properties in one attribute having
+		 * multiple values separated by a blank space. its-ta-class-ref=
+		 * "http://dbpedia.org/ontology/Place http://dbpedia.org/ontology/Location http://nerd.eurecom.fr/ontology#Location http://dbpedia.org/ontology/Settlement http://dbpedia.org/ontology/City http://dbpedia.org/ontology/PopulatedPlace"
+		 * 
+		 * The following map is used for grouping multiple attributes values in
+		 * the same string.
+		 */
+		Map<String, StringBuilder> attrsMap = new HashMap<String, StringBuilder>();
+		if (stmts != null) {
+			String attrName = null;
+			for (Statement stmt : stmts) {
+				attrName = getAttributeNameForItsAnnot(stmt.getPredicate()
+						.getLocalName());
+				if (!attrsMap.containsKey(attrName)) {
+					attrsMap.put(attrName, new StringBuilder());
+				}
+				String attrValue = null;
+				if (stmt.getObject().isResource()) {
+					attrValue = stmt.getObject().asResource().getURI();
+				} else {
+					attrValue = stmt.getObject().asLiteral().getString();
+				}
+				if (parentNode == null
+						|| !parentNode.contains(attrName + "=\"" + attrValue
+								+ "\"")) {
+					if (attrsMap.get(attrName).length() > 0) {
+						attrsMap.get(attrName).append(" ");
+					}
+					attrsMap.get(attrName).append(attrValue);
+				}
+			}
+			for (Entry<String, StringBuilder> entry : attrsMap.entrySet()) {
+				attrString.append(" ");
+				attrString.append(entry.getKey());
+				attrString.append("=\"");
+				attrString.append(entry.getValue());
+				attrString.append("\"");
+			}
+		}
+		return attrString.toString();
+	}
+
+	/**
+	 * Gets the attribute name denoting a specific ITS property. For example,
+	 * the ITS attribute <code>taClassRef</code> is translated to
+	 * <code>its-ta-class-ref</code>.
+	 * 
+	 * @param itsPropName
+	 *            the ITS property.
+	 * @return the attribute name.
+	 */
+	private String getAttributeNameForItsAnnot(String itsPropName) {
+
 		StringBuilder itsAnnotation = new StringBuilder();
 		itsAnnotation.append("its-");
-		String itsPropName = enrichmentStmt.getPredicate().getLocalName();
 		for (int i = 0; i < itsPropName.length(); i++) {
 			if (Character.isUpperCase(itsPropName.charAt(i))) {
 				itsAnnotation.append("-");
@@ -429,19 +530,8 @@ public class HTMLBackConverter {
 				itsAnnotation.append(itsPropName.charAt(i));
 			}
 		}
-		itsAnnotation.append("=\"");
-		if (enrichmentStmt.getObject().isResource()) {
-			itsAnnotation.append(enrichmentStmt.getObject().asResource()
-					.getURI());
-		} else {
-			itsAnnotation.append(enrichmentStmt.getObject().asLiteral()
-					.getString());
-		}
-		itsAnnotation.append("\"");
-
 		return itsAnnotation.toString();
 	}
-
 }
 
 /**

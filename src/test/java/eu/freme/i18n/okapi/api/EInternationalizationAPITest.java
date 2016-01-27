@@ -26,7 +26,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 
@@ -82,7 +81,7 @@ public class EInternationalizationAPITest {
 	public void testEInternationalizationAPIHTML() {
 
 		InputStream is = getClass().getResourceAsStream(
-				"/nifConversion/src1/test10.html");
+				"/nifConversion/src1/text10.html");
 		try {
 			Reader nifReader = eInternationalizationAPI.convertToTurtle(is,
 					EInternationalizationAPI.MIME_TYPE_HTML);
@@ -265,13 +264,21 @@ public class EInternationalizationAPITest {
 		skeletonFile.delete();
 	}
 
-//	@Test
+	@Test
 	public void testSimpleRoundtripping() throws IOException, ConversionException {
 
 		testRoundTripping("/roundtripping/input-html.txt",
 				"/roundtripping/input-turtle.txt");
+		
 	}
 	
+	
+	@Test
+	public void testRoundtrippingMultipleValuesAttrs() throws ConversionException, IOException{
+		
+		testRoundTripping("/roundtripping/in-multAttrs.txt",
+				"/roundtripping/in-multAttrs-enriched.ttl");
+	}
 //	@Test
 //	public void testConvertToTurtle(){
 //		
@@ -307,4 +314,5 @@ public class EInternationalizationAPITest {
 //				"/roundtripping/long-html-enriched.ttl");
 		
 	}
+	
 }
