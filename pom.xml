@@ -57,7 +57,16 @@
 				<enabled>false</enabled>
 			</releases>
 		</repository>
+		<repository>
+			<id>okapi-snapshots</id>
+			<name>okapi-snapshots</name>
+			<url>http://repository-okapi.forge.cloudbees.com/snapshot</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+		</repository>
 	</repositories>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
