@@ -55,6 +55,10 @@ public class HTMLBackConverter {
 	/** The URI offset string prefix. */
 	public static final String URI_OFFSET_PREFIX = "#char=";
 
+	public static final String HTML_CLASS_REF = "its-ta-class-ref";
+
+	public static final String HTML_DATA_CLASS_REF = "data-its-ta-class-refs";
+
 	/** The triple model. */
 	private Model model;
 
@@ -466,8 +470,11 @@ public class HTMLBackConverter {
 		 * <http://dbpedia.org/ontology/City> ,
 		 * <http://dbpedia.org/ontology/PopulatedPlace> ;
 		 * 
-		 * In this case, we translate those properties in one attribute having
-		 * multiple values separated by a blank space. its-ta-class-ref=
+		 * In this case, we translate those properties in one attribute
+		 * its-ta-class-ref having just one of those values. Instead the list of
+		 * multiple values is assigned to the data-its-ta-class-refs attribute
+		 * as follows. its-ta-class-ref= "http://dbpedia.org/ontology/Place"
+		 * data-its-ta-class-refs =
 		 * "http://dbpedia.org/ontology/Place http://dbpedia.org/ontology/Location http://nerd.eurecom.fr/ontology#Location http://dbpedia.org/ontology/Settlement http://dbpedia.org/ontology/City http://dbpedia.org/ontology/PopulatedPlace"
 		 * 
 		 * The following map is used for grouping multiple attributes values in
@@ -498,11 +505,32 @@ public class HTMLBackConverter {
 				}
 			}
 			for (Entry<String, StringBuilder> entry : attrsMap.entrySet()) {
+				// if the current attribute is its-ta-class-ref and has more
+				// than one value
+				if (entry.getKey().equals(HTML_CLASS_REF)
+						&& entry.getValue().toString().contains(" ")) {
+
+					// insert the data-its-ta-class-refs attribute
+					attrString.append(" ");
+					attrString.append(HTML_DATA_CLASS_REF);
+					attrString.append("=\"");
+					attrString.append(entry.getValue());
+					attrString.append("\"");
+
+					// take just the first value from the list and set it as the
+					// value of the its-ta-class-ref attribute.
+					int firstSpaceIdx = entry.getValue().toString()
+							.indexOf(" ");
+					entry.setValue(new StringBuilder(entry.getValue()
+							.subSequence(0, firstSpaceIdx)));
+
+				}
 				attrString.append(" ");
 				attrString.append(entry.getKey());
 				attrString.append("=\"");
 				attrString.append(entry.getValue());
 				attrString.append("\"");
+
 			}
 		}
 		return attrString.toString();
