@@ -145,14 +145,7 @@ public class EInternationalizationAPITest {
 			// model.write(new OutputStreamWriter(System.out), "TTL");
 			// assertFalse(model.isEmpty());
 			
-			StringBuilder bldr = new StringBuilder();
-			char[] buf = new char[1024];
-			int len;
-			while ((len = nifReader.read(buf, 0, 1024)) > 0) {
-				bldr.append(buf, 0, len);
-			}
-			System.out.println(bldr.toString());
-			
+			model.write(System.out, "TTL");
 			
 			Reader expectedReader = new InputStreamReader(getClass()
 					.getResourceAsStream(
