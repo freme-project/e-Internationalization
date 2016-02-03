@@ -22,11 +22,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
 import org.junit.Test;
@@ -50,7 +52,7 @@ public class EInternationalizationAPITest {
 	@Autowired
 	EInternationalizationAPI eInternationalizationAPI;
 
-	 @Test
+	@Test
 	public void testEInternationalizationAPIXliff() {
 
 		InputStream is = getClass().getResourceAsStream(
@@ -62,7 +64,7 @@ public class EInternationalizationAPITest {
 			model.read(nifReader, null,
 					RDFConstants.RDFSerialization.TURTLE.toRDFLang());
 			// assertFalse(model.isEmpty());
-//			model.write(new OutputStreamWriter(System.out), "TTL");
+			// model.write(new OutputStreamWriter(System.out), "TTL");
 			Reader expectedReader = new InputStreamReader(getClass()
 					.getResourceAsStream(
 							"/nifConversion/expected_text1.xlf.ttl"), "UTF-8");
@@ -77,7 +79,7 @@ public class EInternationalizationAPITest {
 		}
 	}
 
-	 @Test
+	@Test
 	public void testEInternationalizationAPIHTML() {
 
 		InputStream is = getClass().getResourceAsStream(
@@ -102,7 +104,7 @@ public class EInternationalizationAPITest {
 		}
 	}
 
-	 @Test
+	@Test
 	public void testEInternationalizationAPIXML() {
 
 		InputStream is = getClass().getResourceAsStream(
@@ -113,7 +115,7 @@ public class EInternationalizationAPITest {
 			Model model = ModelFactory.createDefaultModel();
 			model.read(nifReader, null,
 					RDFConstants.RDFSerialization.TURTLE.toRDFLang());
-//			 model.write(new OutputStreamWriter(System.out), "TTL");
+			// model.write(new OutputStreamWriter(System.out), "TTL");
 			// assertFalse(model.isEmpty());
 			Reader expectedReader = new InputStreamReader(getClass()
 					.getResourceAsStream(
@@ -129,9 +131,8 @@ public class EInternationalizationAPITest {
 		}
 	}
 
-
-	 @Test
-	public void testEInternationalizationAPIODT() {
+	@Test
+	public void testEInternationalizationAPIODT() throws IOException {
 
 		InputStream is = getClass().getResourceAsStream(
 				"/nifConversion/src2/TestDocument02.odt");
@@ -141,24 +142,36 @@ public class EInternationalizationAPITest {
 			Model model = ModelFactory.createDefaultModel();
 			model.read(nifReader, null,
 					RDFConstants.RDFSerialization.TURTLE.toRDFLang());
-//			model.write(new OutputStreamWriter(System.out), "TTL");
+			// model.write(new OutputStreamWriter(System.out), "TTL");
 			// assertFalse(model.isEmpty());
-			 Reader expectedReader = new InputStreamReader(getClass()
-			 .getResourceAsStream(
-			 "/nifConversion/expected_TestDocument02.odt.ttl"), "UTF-8");
-			 Model expectedModel = ModelFactory.createDefaultModel();
-			 expectedModel.read(expectedReader, null,
-			 RDFConstants.RDFSerialization.TURTLE.toRDFLang());
-//			 expectedModel.write(new OutputStreamWriter(System.out), "TTL");
-//			 assertTrue(model.isIsomorphicWith(expectedModel));
+			
+			StringBuilder bldr = new StringBuilder();
+			char[] buf = new char[1024];
+			int len;
+			while ((len = nifReader.read(buf, 0, 1024)) > 0) {
+				bldr.append(buf, 0, len);
+			}
+			System.out.println(bldr.toString());
+			
+			
+			Reader expectedReader = new InputStreamReader(getClass()
+					.getResourceAsStream(
+							"/nifConversion/expected_TestDocument02.odt.ttl"),
+					"UTF-8");
+			Model expectedModel = ModelFactory.createDefaultModel();
+			expectedModel.read(expectedReader, null,
+					RDFConstants.RDFSerialization.TURTLE.toRDFLang());
+			// expectedModel.write(new OutputStreamWriter(System.out), "TTL");
+			// assertTrue(model.isIsomorphicWith(expectedModel));
+
 		} catch (ConversionException e) {
 			e.printStackTrace();
-			 } catch (UnsupportedEncodingException e) {
-			 e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
 		}
 	}
 
-	 @Test
+	@Test
 	public void testEInternationalizationAPIUnsupportedMimeType() {
 
 		String unsupportedMimeType = "unsupp/mime-type";
@@ -183,50 +196,51 @@ public class EInternationalizationAPITest {
 		// UnsupportedMimeTypeException);
 	}
 
-//	@Test
-//	public void testRoundtripping() throws IOException {
-//
-//		try {
-//			//STEP 1: creation of the skeleton file: the TTL file with the context including markups.
-//			InputStream originalFile = getClass().getResourceAsStream(
-//					"/roundtripping/input-html.txt");
-//			Reader skeletonReader = eInternationalizationAPI
-//					.convertToTurtleWithMarkups(originalFile,
-//							EInternationalizationAPI.MIME_TYPE_HTML);
-//			
-//			//STEP 2: save the skeleton file somewhere on the machine
-//			BufferedReader br = new BufferedReader(skeletonReader);
-////			File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
-//			File skeletonFile = new File(System.getProperty("user.home"), "skeletonApiTest.ttl");
-//			FileWriter writer = new FileWriter(skeletonFile);
-//			String line;
-//			while ((line = br.readLine()) != null) {
-//				System.out.println(line);
-//				writer.write(line);
-//			}
-//			br.close();
-//			writer.close();
-//			
-//			//STEP 3: execute the conversion back by submitting the skeleton file and the enriched file
-//			InputStream skeletonStream = new FileInputStream(skeletonFile);
-//			InputStream turtle = getClass().getResourceAsStream(
-//					"/roundtripping/input-turtle.txt");
-//			Reader reader = eInternationalizationAPI.convertBack(skeletonStream,
-//					turtle);
-//			br = new BufferedReader(reader);
-//			while ((line = br.readLine()) != null) {
-//				System.out.println(line);
-//			}
-//			br.close();
-////			skeletonFile.delete();
-//		} catch (ConversionException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//	}
+	// @Test
+	// public void testRoundtripping() throws IOException {
+	//
+	// try {
+	// //STEP 1: creation of the skeleton file: the TTL file with the context
+	// including markups.
+	// InputStream originalFile = getClass().getResourceAsStream(
+	// "/roundtripping/input-html.txt");
+	// Reader skeletonReader = eInternationalizationAPI
+	// .convertToTurtleWithMarkups(originalFile,
+	// EInternationalizationAPI.MIME_TYPE_HTML);
+	//
+	// //STEP 2: save the skeleton file somewhere on the machine
+	// BufferedReader br = new BufferedReader(skeletonReader);
+	// // File skeletonFile = File.createTempFile("freme-i18n-unittest", "");
+	// File skeletonFile = new File(System.getProperty("user.home"),
+	// "skeletonApiTest.ttl");
+	// FileWriter writer = new FileWriter(skeletonFile);
+	// String line;
+	// while ((line = br.readLine()) != null) {
+	// System.out.println(line);
+	// writer.write(line);
+	// }
+	// br.close();
+	// writer.close();
+	//
+	// //STEP 3: execute the conversion back by submitting the skeleton file and
+	// the enriched file
+	// InputStream skeletonStream = new FileInputStream(skeletonFile);
+	// InputStream turtle = getClass().getResourceAsStream(
+	// "/roundtripping/input-turtle.txt");
+	// Reader reader = eInternationalizationAPI.convertBack(skeletonStream,
+	// turtle);
+	// br = new BufferedReader(reader);
+	// while ((line = br.readLine()) != null) {
+	// System.out.println(line);
+	// }
+	// br.close();
+	// // skeletonFile.delete();
+	// } catch (ConversionException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// }
 
-
-	
 	public void testRoundTripping(String originalFilePath, String enrichmentPath)
 			throws ConversionException, IOException {
 		// STEP 1: creation of the skeleton file: the TTL file with the context
@@ -243,7 +257,7 @@ public class EInternationalizationAPITest {
 		FileWriter writer = new FileWriter(skeletonFile);
 		String line;
 		while ((line = br.readLine()) != null) {
-//			System.out.println(line);
+			// System.out.println(line);
 			writer.write(line);
 		}
 		br.close();
@@ -252,8 +266,7 @@ public class EInternationalizationAPITest {
 		// STEP 3: execute the conversion back by submitting the skeleton file
 		// and the enriched file
 		InputStream skeletonStream = new FileInputStream(skeletonFile);
-		InputStream turtle = getClass().getResourceAsStream(
-				enrichmentPath);
+		InputStream turtle = getClass().getResourceAsStream(enrichmentPath);
 		Reader reader = eInternationalizationAPI.convertBack(skeletonStream,
 				turtle);
 		br = new BufferedReader(reader);
@@ -265,54 +278,60 @@ public class EInternationalizationAPITest {
 	}
 
 	@Test
-	public void testSimpleRoundtripping() throws IOException, ConversionException {
+	public void testSimpleRoundtripping() throws IOException,
+			ConversionException {
 
 		testRoundTripping("/roundtripping/input-html.txt",
 				"/roundtripping/input-turtle.txt");
-		
+
 	}
-	
-	
+
 	@Test
-	public void testRoundtrippingMultipleValuesAttrs() throws ConversionException, IOException{
-		
+	public void testRoundtrippingMultipleValuesAttrs()
+			throws ConversionException, IOException {
+
 		testRoundTripping("/roundtripping/in-multAttrs.txt",
 				"/roundtripping/in-multAttrs-enriched.ttl");
 	}
-//	@Test
-//	public void testConvertToTurtle(){
-//		
-//		InputStream fileToConvert = getClass().getResourceAsStream("/roundtripping/short-html.html");
-//		try {
-//			Reader nifReader = eInternationalizationAPI.convertToTurtle(fileToConvert, EInternationalizationAPI.MIME_TYPE_HTML);
-//			File nifFile = new File(System.getProperty("user.home"), "convertedHtml.ttl");
-//			FileWriter writer = new FileWriter(nifFile);
-//			BufferedReader br = new BufferedReader(nifReader);
-//			String line;
-//			while ((line = br.readLine()) != null) {
-//				System.out.println(line);
-//				writer.write(line);
-//			}
-//			br.close();
-//			writer.close();
-//		} catch (ConversionException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		};
-//	}
-	
+
+	// @Test
+	// public void testConvertToTurtle(){
+	//
+	// InputStream fileToConvert =
+	// getClass().getResourceAsStream("/roundtripping/short-html.html");
+	// try {
+	// Reader nifReader =
+	// eInternationalizationAPI.convertToTurtle(fileToConvert,
+	// EInternationalizationAPI.MIME_TYPE_HTML);
+	// File nifFile = new File(System.getProperty("user.home"),
+	// "convertedHtml.ttl");
+	// FileWriter writer = new FileWriter(nifFile);
+	// BufferedReader br = new BufferedReader(nifReader);
+	// String line;
+	// while ((line = br.readLine()) != null) {
+	// System.out.println(line);
+	// writer.write(line);
+	// }
+	// br.close();
+	// writer.close();
+	// } catch (ConversionException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// } catch (IOException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// };
+	// }
+
 	@Test
 	public void testLongRoundtripping() throws IOException, ConversionException {
 
 		testRoundTripping("/roundtripping/vt-input-html.txt",
 				"/roundtripping/vt-input-turtle.txt");
-		
-//		testRoundTripping("/roundtripping/long-html.html",
-//				"/roundtripping/long-html-enriched.ttl");
-		
+
+		// testRoundTripping("/roundtripping/long-html.html",
+		// "/roundtripping/long-html-enriched.ttl");
+
 	}
-	
+
 }
