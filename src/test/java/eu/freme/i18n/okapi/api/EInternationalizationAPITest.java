@@ -22,15 +22,15 @@ import static org.junit.Assert.assertTrue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
-import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +43,7 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import eu.freme.i18n.api.EInternationalizationAPI;
 import eu.freme.i18n.api.EInternationalizationConfig;
 import eu.freme.i18n.okapi.nif.converter.ConversionException;
+import eu.freme.i18n.okapi.nif.converter.UnsupportedMimeTypeException;
 import eu.freme.i18n.okapi.nif.filter.RDFConstants;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -83,7 +84,7 @@ public class EInternationalizationAPITest {
 	public void testEInternationalizationAPIHTML() {
 
 		InputStream is = getClass().getResourceAsStream(
-				"/nifConversion/src1/text10.html");
+				"/nifConversion/src1/test10.html");
 		try {
 			Reader nifReader = eInternationalizationAPI.convertToTurtle(is,
 					EInternationalizationAPI.MIME_TYPE_HTML);
@@ -142,11 +143,12 @@ public class EInternationalizationAPITest {
 			Model model = ModelFactory.createDefaultModel();
 			model.read(nifReader, null,
 					RDFConstants.RDFSerialization.TURTLE.toRDFLang());
+			
 			// model.write(new OutputStreamWriter(System.out), "TTL");
 			// assertFalse(model.isEmpty());
-			
-			model.write(System.out, "TTL");
-			
+
+//			model.write(System.out, "TTL");
+
 			Reader expectedReader = new InputStreamReader(getClass()
 					.getResourceAsStream(
 							"/nifConversion/expected_TestDocument02.odt.ttl"),
@@ -154,8 +156,10 @@ public class EInternationalizationAPITest {
 			Model expectedModel = ModelFactory.createDefaultModel();
 			expectedModel.read(expectedReader, null,
 					RDFConstants.RDFSerialization.TURTLE.toRDFLang());
+			
+			
 			// expectedModel.write(new OutputStreamWriter(System.out), "TTL");
-			// assertTrue(model.isIsomorphicWith(expectedModel));
+//			assertTrue(model.isIsomorphicWith(expectedModel));
 
 		} catch (ConversionException e) {
 			e.printStackTrace();
@@ -176,17 +180,17 @@ public class EInternationalizationAPITest {
 		} catch (ConversionException e) {
 			exception = e;
 		}
-		// Assert.assertNotNull(exception);
-		// UnsupportedMimeTypeException unsuppException = new
-		// UnsupportedMimeTypeException(
-		// unsupportedMimeType, new String[] {
-		// EInternationalizationAPI.MIME_TYPE_XLIFF_1_2,
-		// EInternationalizationAPI.MIME_TYPE_HTML });
-		// Assert.assertEquals(
-		// unsuppException.getMessage(),
-		// exception.getMessage());
-		// Assert.assertTrue(exception.getCause() instanceof
-		// UnsupportedMimeTypeException);
+		 Assert.assertNotNull(exception);
+		 UnsupportedMimeTypeException unsuppException = new
+		 UnsupportedMimeTypeException(
+		 unsupportedMimeType, new String[] {
+		 EInternationalizationAPI.MIME_TYPE_XLIFF_1_2,
+		 EInternationalizationAPI.MIME_TYPE_HTML });
+		 Assert.assertEquals(
+		 unsuppException.getMessage(),
+		 exception.getMessage());
+		 Assert.assertTrue(exception.getCause() instanceof
+		 UnsupportedMimeTypeException);
 	}
 
 	// @Test
@@ -326,5 +330,5 @@ public class EInternationalizationAPITest {
 		// "/roundtripping/long-html-enriched.ttl");
 
 	}
-
+	
 }

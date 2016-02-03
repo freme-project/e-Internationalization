@@ -20,6 +20,7 @@ package eu.freme.i18n.okapi.nif.step;
 import net.sf.okapi.common.Event;
 import net.sf.okapi.common.EventType;
 import net.sf.okapi.common.IParameters;
+import net.sf.okapi.common.MimeTypeMapper;
 import net.sf.okapi.common.pipeline.BasePipelineStep;
 import net.sf.okapi.common.resource.ITextUnit;
 import net.sf.okapi.common.resource.StartDocument;
@@ -36,6 +37,9 @@ public class NifWriterStep extends BasePipelineStep {
 
 	/** The NIF filter writer object. */
 	private NifWriterFilter writer;
+	
+	/** The document mime type*/
+	private String mimeType;
 	
 	/**
 	 * Constructor.
@@ -119,7 +123,7 @@ public class NifWriterStep extends BasePipelineStep {
 
 		case TEXT_UNIT:
 			ITextUnit tu = event.getTextUnit();
-			if (tu.getType() != null && tu.getType().startsWith("x-")) {
+			if (mimeType == MimeTypeMapper.HTML_MIME_TYPE && tu.getType() != null && tu.getType().startsWith("x-")) {
 				return event;
 			} else {
 				Event ev = new Event(EventType.TEXT_UNIT, tu.clone());
@@ -187,6 +191,7 @@ public class NifWriterStep extends BasePipelineStep {
 	 *            the start document object
 	 */
 	private void processStartDocument(StartDocument startDocument) {
+		mimeType = startDocument.getMimeType();
 		writer = new NifWriterFilter(params, startDocument.getLocale());
 		writer.processStartDocument(startDocument);
 	}
