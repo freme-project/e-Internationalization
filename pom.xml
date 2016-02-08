@@ -12,7 +12,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>eu.freme</groupId>
 	<artifactId>e-internationalization</artifactId>
-	<version>0.3</version>
+	<version>0.4-SNAPSHOT</version>
 	<name>Okapi NIF converter</name>
 	<inceptionYear>2015</inceptionYear>
 	<properties>
