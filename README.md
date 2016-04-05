@@ -1,4 +1,7 @@
 # e-Internationalization
+
+**This repository is deprecated. It has moved to [basic services repository](https://github.com/freme-project/basic-services).**
+
 ## Okapi-NIF Converter
 This converter performs raw document to NIF conversion through Okapi.
 
